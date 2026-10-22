@@ -51,6 +51,15 @@ th { background:#FFF8E7; }
 .faq b { color:var(--red); display:block; margin:12px 0 4px; }
 .foot { margin-top:28px; color:#999; font-size:0.8rem; text-align:center; }
 .note { color:#888; font-size:0.78rem; margin-top:8px; }
+
+nav { position:sticky; top:0; background:#fff; border-bottom:2px solid #F0E6D2; padding:10px 16px; border-radius:0 0 14px 14px; z-index:10; display:flex; gap:8px; flex-wrap:wrap; }
+nav a { color:#333; text-decoration:none; font-size:0.88rem; padding:6px 14px; border-radius:20px; background:#FFF8E7; border:1px solid #F0E6D2; }
+nav a:hover { background:var(--yellow); }
+.features { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; }
+.feature { background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px; }
+.feature .ic { font-size:1.5rem; }
+.feature .nm { font-weight:800; color:var(--red); margin:6px 0 4px; }
+.feature .ds { font-size:0.82rem; color:#666; }
 </style>
 </head>
 <body>
@@ -67,7 +76,23 @@ th { background:#FFF8E7; }
     </div>
   </div>
 
-  <h2>① 点选两个套餐，开始比价</h2>
+<nav>
+  <a href="#features">⚡ 它能做什么</a>
+  <a href="#try">⚖️ 在线试算</a>
+  <a href="#how">🔍 原理</a>
+  <a href="#truth">✅ 真实性</a>
+  <a href="#faq">❓ FAQ</a>
+</nav>
+
+  <h2 id="features">⚡ 它能做什么</h2>
+  <div class="section features">
+    <div class="feature"><div class="ic">⚖️</div><div class="nm">套餐比价</div><div class="ds">两个套餐并排对比，价格、热量、蛋白一目了然</div></div>
+    <div class="feature"><div class="ic">🧮</div><div class="nm">真实节省</div><div class="ds">拆开单点算总价，划线价之外的真实优惠</div></div>
+    <div class="feature"><div class="ic">🍟</div><div class="nm">麦当劳度量衡</div><div class="ds">省下的钱 = 几份麦乐鸡，一眼有感觉</div></div>
+    <div class="feature"><div class="ic">💎</div><div class="nm">券和积分</div><div class="ds">官方算价、积分怎么花、一键领券（完整应用）</div></div>
+  </div>
+
+  <h2 id="try">① 点选两个套餐，开始比价</h2>
   <div class="section">
     <div class="slots">
       <div class="slot">A 位：<b id="slotA">未选择</b></div>
@@ -81,7 +106,7 @@ th { background:#FFF8E7; }
     <div id="result"></div>
   </div>
 
-  <h2>为什么不让大模型算价格</h2>
+  <h2 id="how">🔍 为什么不让大模型算价格</h2>
   <div class="section">
     <div class="step"><div class="no">1</div><div><b>取数交给 MCP</b> —— 通过麦当劳官方 MCP 拉取真实菜单、价格、套餐组成、营养数据。</div></div>
     <div class="step"><div class="no">2</div><div><b>算术交给代码</b> —— 拆开套餐算真实节省（单点合计 - 套餐价）、营养求和、差价换算，全部确定性计算。</div></div>
@@ -89,7 +114,7 @@ th { background:#FFF8E7; }
     <div class="note">大模型口算价格不可靠，容易出现"看着便宜、到店付不出"的假结果。本项目所有金额由确定性算法或 MCP 官方算价接口计算。</div>
   </div>
 
-  <h2>真实性对照表</h2>
+  <h2 id="truth">✅ 真实性对照表</h2>
   <div class="section">
     <table>
       <tr><th>数据</th><th>来源</th><th>状态</th></tr>
@@ -101,7 +126,7 @@ th { background:#FFF8E7; }
     </table>
   </div>
 
-  <h2>常见问题</h2>
+  <h2 id="faq">❓ 常见问题</h2>
   <div class="section faq">
     <b>这和大模型直接回答有什么区别？</b>
     大模型口算价格、折扣、营养并不可靠。本项目金额全部来自确定性计算或 MCP 官方接口，可复现、可核验。
