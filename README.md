@@ -6,7 +6,7 @@
 
 ## 在线体验
 
-- **免登录试算页**（GitHub Pages，打开即玩）：https://<用户名>.github.io/<仓库名>/
+- **免登录试算页**（GitHub Pages，打开即玩）：https://philip-xu-yu.github.io/mcd-price-king/
 - **完整应用**（本地运行，可查自己账号的券/积分）：见下方「安装」
 
 ## 它解决什么问题
