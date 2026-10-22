@@ -1,0 +1,13 @@
+# 环境
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# 个人敏感数据（订单、积分属于个人账户，禁止提交）
+data/orders.json
+data/account.json
+
+# 密钥
+.env
+*.key
