@@ -148,6 +148,18 @@ th { color:var(--muted); font-weight:600; font-size:.8rem; }
 .rank-item .rn { flex:1; font-weight:600; font-size:.9rem; }
 .rank-item .rs { font-weight:800; color:#2E7D32; font-size:.92rem; white-space:nowrap; }
 .rank-item .rp { color:var(--muted); font-size:.8rem; white-space:nowrap; }
+
+/* 移动端适配 */
+@media (max-width: 640px) {
+  .hero { padding: 32px 22px; }
+  .hero h1 { font-size: 1.9rem; }
+  .demo .num { font-size: 1.35rem; }
+  .cards { grid-template-columns: 1fr; }
+  .meal-grid { grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); }
+  .sec { flex-direction: column; gap: 2px; }
+  .wrap { padding: 16px 12px 60px; }
+  .rank-item .rp { display: none; }
+}
 .alert-note { background:#FFF8E1; border-left:4px solid var(--gold); border-radius:10px; padding:12px 16px; margin-top:14px; font-size:.9rem; color:#6B5A1A; }
 </style>
 </head>
@@ -159,10 +171,10 @@ th { color:var(--muted); font-weight:600; font-size:.8rem; }
     <h1>麦门比价王</h1>
     <div class="sub">两个套餐纠结半天？把价格、热量、蛋白摆在一起，3 秒见分晓。<br>数据来自麦当劳官方 MCP 接口，算术交给代码，数字可复现。</div>
     <div class="demo">
-      <span class="num">直选 ¥47.00</span><span class="vs">VS</span>
-      <span class="num">最优组合 ¥21.90</span>
-      <span class="save">省 53%</span>
-      <span class="tag">1+1 随心配组合 · 示例快照</span>
+      <span class="num">拆开单点 ¥62.50</span><span class="vs">VS</span>
+      <span class="num">套餐价 ¥32.00</span>
+      <span class="save">真实省 ¥30.5 · 49%</span>
+      <span class="tag">巨无霸四件套 · 官方 MCP 数据实测</span>
       <a class="star-btn" href="https://github.com/Philip-Xu-yu/mcd-price-king" target="_blank"><span class="s">⭐</span> 觉得好用？点个 Star</a>
     </div>
   </div>
