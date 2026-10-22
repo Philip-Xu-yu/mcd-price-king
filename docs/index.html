@@ -4,63 +4,74 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>麦门比价王 · 在线试算 | 麦当劳套餐比价</title>
+
 <style>
-:root { --red:#DA291C; --yellow:#FFC72C; --bg:#FFFDF7; --line:#F0E6D2; }
+:root { --red:#DA291C; --yellow:#FFC72C; --bg:#FFFDF7; --line:#F0E6D2; --dark:#2B1A0E; }
 * { margin:0; padding:0; box-sizing:border-box; }
-body { background:var(--bg); font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; color:#333; line-height:1.6; }
-.wrap { max-width:820px; margin:0 auto; padding:24px 16px 60px; }
-.hero { background:linear-gradient(135deg,#DA291C,#B82014); border-radius:20px; padding:32px 28px; color:#fff; margin-bottom:20px; }
-.hero h1 { font-size:1.9rem; margin-bottom:10px; }
-.hero .sub { color:#FFE9B8; font-size:1rem; margin-bottom:16px; }
-.hero .demo { display:flex; align-items:center; gap:14px; flex-wrap:wrap; background:rgba(255,255,255,0.12); border-radius:14px; padding:14px 18px; }
-.hero .demo .num { font-size:1.6rem; font-weight:800; }
-.hero .demo .arrow { font-size:1.4rem; }
-.hero .demo .save { background:var(--yellow); color:#7A5200; border-radius:20px; padding:4px 14px; font-weight:800; }
-h2 { color:var(--red); font-size:1.25rem; margin:26px 0 10px; }
-.section { background:#fff; border:1px solid var(--line); border-radius:16px; padding:18px 20px; }
-.step { display:flex; gap:12px; margin:14px 0; }
-.step .no { background:var(--yellow); color:#7A5200; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; flex-shrink:0; }
-.meals { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
-.meal { border:2px solid var(--line); border-radius:12px; padding:10px; text-align:center; cursor:pointer; background:#fff; transition:all .15s; }
-.meal:hover { border-color:var(--red); }
-.meal.sel-a { border-color:#4CAF50; background:#F0FBF0; }
-.meal.sel-b { border-color:#2196F3; background:#EFF6FF; }
-.meal img { width:90px; height:auto; border-radius:8px; }
-.meal .nm { font-weight:700; font-size:0.85rem; margin:6px 0 2px; }
-.meal .pr { color:var(--red); font-weight:800; font-size:0.95rem; }
-.meal .st { color:#999; text-decoration:line-through; font-size:0.75rem; }
-.slots { display:flex; gap:10px; align-items:center; margin:16px 0; flex-wrap:wrap; }
-.slot { flex:1; min-width:200px; border:2px dashed var(--line); border-radius:12px; padding:10px 14px; text-align:center; }
+body { background:var(--bg); font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; color:#333; line-height:1.65; }
+.wrap { max-width:860px; margin:0 auto; padding:28px 16px 60px; }
+.hero { background:linear-gradient(140deg,#E82212 0%,#DA291C 45%,#A3170E 100%); border-radius:24px; padding:40px 36px; color:#fff; margin-bottom:24px; position:relative; overflow:hidden; box-shadow:0 8px 28px rgba(218,41,28,0.25); }
+.hero::after { content:"🍔"; position:absolute; right:-14px; bottom:-22px; font-size:120px; opacity:0.14; }
+.hero h1 { font-size:2.2rem; margin-bottom:12px; letter-spacing:1px; }
+.hero .sub { color:#FFE9B8; font-size:1.02rem; margin-bottom:20px; }
+.hero .demo { display:inline-flex; align-items:center; gap:16px; flex-wrap:wrap; background:rgba(255,255,255,0.13); border:1px solid rgba(255,255,255,0.2); border-radius:16px; padding:16px 22px; backdrop-filter:blur(4px); }
+.hero .demo .num { font-size:1.9rem; font-weight:800; }
+.hero .demo .vs { font-size:1.2rem; opacity:0.9; }
+.hero .demo .save { background:var(--yellow); color:#7A5200; border-radius:22px; padding:6px 16px; font-weight:800; font-size:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.2); }
+h2 { color:var(--red); font-size:1.3rem; margin:30px 0 12px; }
+.section { background:#fff; border:1px solid var(--line); border-radius:18px; padding:22px 24px; box-shadow:0 2px 14px rgba(0,0,0,0.05); }
+.step { display:flex; gap:14px; margin:16px 0; align-items:flex-start; }
+.step .no { background:linear-gradient(135deg,#FFC72C,#F5A800); color:#7A5200; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; flex-shrink:0; box-shadow:0 2px 6px rgba(245,168,0,0.4); }
+.meals { display:grid; grid-template-columns:repeat(auto-fill,minmax(165px,1fr)); gap:12px; }
+.meal { border:2px solid var(--line); border-radius:14px; padding:12px; text-align:center; cursor:pointer; background:#fff; transition:all .18s; }
+.meal:hover { border-color:var(--red); transform:translateY(-3px); box-shadow:0 6px 16px rgba(218,41,28,0.12); }
+.meal.sel-a { border-color:#4CAF50; background:linear-gradient(180deg,#F0FBF0,#fff); }
+.meal.sel-b { border-color:#2196F3; background:linear-gradient(180deg,#EFF6FF,#fff); }
+.meal img { width:104px; height:auto; border-radius:10px; }
+.meal .nm { font-weight:700; font-size:0.84rem; margin:8px 0 2px; }
+.meal .pr { color:var(--red); font-weight:800; font-size:0.98rem; }
+.meal .st { color:#999; text-decoration:line-through; font-size:0.74rem; }
+.slots { display:flex; gap:12px; align-items:center; margin:18px 0; flex-wrap:wrap; }
+.slot { flex:1; min-width:210px; border:2px dashed #E0D5C0; border-radius:14px; padding:12px 16px; text-align:center; background:#FFFDF7; }
 .slot b { color:var(--red); }
-.btn { background:var(--red); color:#fff; border:none; border-radius:12px; padding:12px 28px; font-size:1.05rem; font-weight:700; cursor:pointer; }
-.btn:hover { background:#B82014; }
-.cards { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px; }
-.card { border:2px solid var(--line); border-radius:16px; padding:14px; text-align:center; background:#fff; }
-.card.win { border-color:#4CAF50; }
-.card img { width:110px; border-radius:8px; }
-.card .name { font-weight:700; margin:6px 0 2px; }
-.card .price { font-size:1.6rem; font-weight:800; color:var(--red); }
+.btn { background:linear-gradient(135deg,#E82212,#B82014); color:#fff; border:none; border-radius:12px; padding:13px 30px; font-size:1.05rem; font-weight:700; cursor:pointer; box-shadow:0 4px 12px rgba(218,41,28,0.3); transition:transform .15s; }
+.btn:hover { transform:translateY(-2px); }
+.btn.ghost { background:#fff; color:#DA291C; border:2px solid #DA291C; box-shadow:none; }
+.cards { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px; }
+.card { border:2px solid var(--line); border-radius:18px; padding:18px; text-align:center; background:#fff; position:relative; box-shadow:0 2px 12px rgba(0,0,0,0.05); }
+.card.win { border-color:#F5A800; box-shadow:0 4px 18px rgba(245,168,0,0.3); }
+.card .crown { position:absolute; top:-14px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg,#FFC72C,#F5A800); color:#7A5200; font-size:0.78rem; font-weight:800; padding:3px 14px; border-radius:20px; box-shadow:0 2px 8px rgba(245,168,0,0.5); }
+.card img { width:120px; border-radius:10px; }
+.card .name { font-weight:700; margin:8px 0 2px; }
+.card .price { font-size:1.9rem; font-weight:800; color:var(--red); }
 .card .strike { color:#999; text-decoration:line-through; font-size:0.82rem; }
 .card .metric { font-size:0.88rem; margin:4px 0; }
-.verdict { border:2px dashed var(--red); border-radius:14px; padding:14px 18px; margin-top:14px; background:#fff; }
-.verdict .t { font-weight:800; color:var(--red); }
+.bars { margin-top:14px; }
+.bar-row { margin:8px 0; }
+.bar-row .lb { font-size:0.8rem; color:#666; margin-bottom:2px; }
+.bar-line { display:flex; height:22px; border-radius:8px; overflow:hidden; background:#F5F0E8; }
+.bar-a { background:linear-gradient(90deg,#DA291C,#E8584B); color:#fff; font-size:0.75rem; font-weight:700; display:flex; align-items:center; padding-left:8px; transition:width .5s; }
+.bar-b { background:linear-gradient(90deg,#F5A800,#FFC72C); color:#7A5200; font-size:0.75rem; font-weight:700; display:flex; align-items:center; padding-left:8px; transition:width .5s; }
+.verdict { border:2px dashed var(--red); border-radius:16px; padding:16px 20px; margin-top:16px; background:#FFFDF7; }
+.verdict .t { font-weight:800; color:var(--red); font-size:1.05rem; }
+.verdict .big { font-size:1.1rem; font-weight:700; margin-top:6px; }
 table { width:100%; border-collapse:collapse; font-size:0.88rem; margin-top:8px; }
-td,th { border:1px solid var(--line); padding:8px 10px; text-align:left; }
+td,th { border:1px solid var(--line); padding:9px 12px; text-align:left; }
 th { background:#FFF8E7; }
 .faq { font-size:0.92rem; }
-.faq b { color:var(--red); display:block; margin:12px 0 4px; }
-.foot { margin-top:28px; color:#999; font-size:0.8rem; text-align:center; }
+.faq b { color:var(--red); display:block; margin:14px 0 4px; }
+.foot { margin-top:30px; color:#999; font-size:0.8rem; text-align:center; }
 .note { color:#888; font-size:0.78rem; margin-top:8px; }
-
-nav { position:sticky; top:0; background:#fff; border-bottom:2px solid #F0E6D2; padding:10px 16px; border-radius:0 0 14px 14px; z-index:10; display:flex; gap:8px; flex-wrap:wrap; }
+nav { position:sticky; top:0; background:rgba(255,255,255,0.96); backdrop-filter:blur(6px); border-bottom:2px solid #F0E6D2; padding:10px 16px; border-radius:0 0 16px 16px; z-index:10; display:flex; gap:8px; flex-wrap:wrap; }
 nav a { color:#333; text-decoration:none; font-size:0.88rem; padding:6px 14px; border-radius:20px; background:#FFF8E7; border:1px solid #F0E6D2; }
 nav a:hover { background:var(--yellow); }
-.features { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; }
-.feature { background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px; }
-.feature .ic { font-size:1.5rem; }
+.features { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; }
+.feature { background:#fff; border:1px solid var(--line); border-radius:16px; padding:16px 18px; box-shadow:0 2px 10px rgba(0,0,0,0.04); transition:transform .15s; }
+.feature:hover { transform:translateY(-3px); box-shadow:0 6px 16px rgba(0,0,0,0.08); }
+.feature .ic { font-size:1.6rem; }
 .feature .nm { font-weight:800; color:var(--red); margin:6px 0 4px; }
 .feature .ds { font-size:0.82rem; color:#666; }
-</style>
+</style></style>
 </head>
 <body>
 <div class="wrap">
@@ -69,7 +80,7 @@ nav a:hover { background:var(--yellow); }
     <h1>🍔 麦门比价王</h1>
     <div class="sub">两个套餐纠结半天？把价格、热量、蛋白摆在一起，3 秒见分晓。<br>数据来自麦当劳官方 MCP 接口，算术交给代码，数字可复现。</div>
     <div class="demo">
-      <span class="num">直选 ¥47.00</span><span class="arrow">→</span>
+      <span class="num">直选 ¥47.00</span><span class="vs">VS</span>
       <span class="num">最优组合 ¥21.90</span>
       <span class="save">省 53%</span>
       <span style="font-size:0.82rem;color:#FFE9B8">（1+1 随心配组合 · 示例快照）</span>
@@ -101,7 +112,7 @@ nav a:hover { background:var(--yellow); }
     <div class="meals" id="meals"></div>
     <div style="margin-top:14px">
       <button class="btn" onclick="compare()">开始比价 ⚖️</button>
-      <button class="btn" style="background:#fff;color:#DA291C;border:2px solid #DA291C;margin-left:8px" onclick="reset()">重新选择</button>
+      <button class="btn" style="background:#fff;color:#DA291C;border:2px solid #DA291C;margin-left:8px" onclick="reset()" class="ghost">重新选择</button>
     </div>
     <div id="result"></div>
   </div>
@@ -884,6 +895,7 @@ function compare() {
   const pN = Math.round(Math.abs(a.protein - b.protein) / METRIC[0].protein * 10) / 10;
   const card = (x, win) => `
     <div class="card ${win ? 'win' : ''}">
+      ${win ? '<div class="crown">🏆 更划算</div>' : ''}
       <img src="${x.image}" onerror="this.style.display='none'" alt="">
       <div class="name">${x.name}</div>
       <div class="price">¥${x.price}</div>
@@ -892,8 +904,29 @@ function compare() {
       <div class="metric">热量 <b>${x.kcal} kcal</b></div>
       <div class="metric">蛋白 <b>${x.protein} g</b></div>
     </div>`;
+  const maxKcal = Math.max(a.kcal, b.kcal, 1);
+  const maxPro = Math.max(a.protein, b.protein, 1);
+  const maxPrice = Math.max(a.price, b.price, 1);
+  const bars = `
+    <div class="bars">
+      <div class="bar-row"><div class="lb">价格对比（红 = A，黄 = B）</div>
+        <div class="bar-line">
+          <div class="bar-a" style="width:${(a.price/maxPrice*50)}%">A ¥${a.price}</div>
+          <div class="bar-b" style="width:${(b.price/maxPrice*50)}%">B ¥${b.price}</div>
+        </div></div>
+      <div class="bar-row"><div class="lb">热量对比</div>
+        <div class="bar-line">
+          <div class="bar-a" style="width:${(a.kcal/maxKcal*50)}%">A ${a.kcal} kcal</div>
+          <div class="bar-b" style="width:${(b.kcal/maxKcal*50)}%">B ${b.kcal} kcal</div>
+        </div></div>
+      <div class="bar-row"><div class="lb">蛋白对比</div>
+        <div class="bar-line">
+          <div class="bar-a" style="width:${(a.protein/maxPro*50)}%">A ${a.protein} g</div>
+          <div class="bar-b" style="width:${(b.protein/maxPro*50)}%">B ${b.protein} g</div>
+        </div></div>
+    </div>`;
   document.getElementById('result').innerHTML = `
-    <div class="cards">${card(a, cheaper === 'a')}${card(b, cheaper === 'b')}</div>
+    <div class="cards">${card(a, cheaper === 'a')}${card(b, cheaper === 'b')}</div>${bars}
     <div class="verdict"><div class="t">⚖️ 结论</div><div style="margin-top:4px">${verdict}</div>
     <div class="note">💡 省下的 ¥${saving} ${metricText(saving)}${pN >= 0.1 ? `；蛋白差 ≈ ${pN} 份麦乐鸡(5块)` : ''}</div></div>`;
 }
