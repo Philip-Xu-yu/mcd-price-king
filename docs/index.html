@@ -169,6 +169,7 @@ th { color:var(--muted); font-weight:600; font-size:.8rem; }
 
   <div class="nav">
     <a href="#features">⚡ 它能做什么</a>
+    <a href="#coupon">💎 一键领券</a>
     <a href="#rank">🏆 最划算</a>
     <a href="#try">⚖️ 在线试算</a>
     <a href="#how">🔍 原理</a>
@@ -182,6 +183,15 @@ th { color:var(--muted); font-weight:600; font-size:.8rem; }
     <div class="feat"><div class="ic">🧮</div><div class="nm">真实节省</div><div class="ds">拆开单点算总价，划线价之外的真实优惠</div></div>
     <div class="feat"><div class="ic">🍟</div><div class="nm">麦当劳度量衡</div><div class="ds">省下的钱 = 几份麦乐鸡，一眼有感觉</div></div>
     <div class="feat"><div class="ic">💎</div><div class="nm">券和积分</div><div class="ds">官方算价、积分怎么花、一键领券（完整应用）</div></div>
+  </div>
+
+  <div class="sec" id="coupon"><h2>💎 一键领券</h2><span class="hint">券会过期，忘了领就是亏</span></div>
+  <div class="card" style="text-align:center">
+    <div class="txt" style="font-size:.95rem;color:#4A443C;margin-bottom:6px">麦当劳经常有可领的券，<b>一张张去点太麻烦</b>。</div>
+    <div class="txt" style="font-size:.95rem;color:#4A443C;margin-bottom:16px">这里一键帮你把能领的<b>全领了</b>。</div>
+    <button class="btn" style="font-size:1.1rem;padding:15px 40px" onclick="claimAll()">🎟️ 一键领取所有可领的券</button>
+    <div id="claimResult" style="margin-top:14px"></div>
+    <div class="note" style="margin-top:12px">本页为演示效果（示例数据）。完整应用接入你的 MCP Token 后真实领取，实测自动领到过「免费脆薯饼」。</div>
   </div>
 
   <div class="sec" id="rank"><h2>🏆 今日最划算 TOP5</h2><span class="hint">真实节省 = 拆开单点合计 - 套餐价 · 按官方数据快照排序</span></div>
@@ -233,7 +243,6 @@ th { color:var(--muted); font-weight:600; font-size:.8rem; }
 
   <div class="star-call">
     <a class="big-btn" href="https://github.com/Philip-Xu-yu/mcd-price-king" target="_blank">⭐ 给项目一个 Star，让更多人看到</a>
-    <div class="hint2">Star 数是本次比赛排名的唯一依据，你的一个点击 = 一票</div>
   </div>
 
   <div class="foot">
@@ -378,6 +387,21 @@ function rankPick(i) {
   document.getElementById('result').innerHTML = '';
   renderMeals();
   window.scrollTo({ top: document.getElementById('try').offsetTop - 80, behavior: 'smooth' });
+}
+
+// 模拟一键领券（示例数据）
+const CLAIM_POOL = ['免费脆薯饼', '第二杯半价券', '满30减5券'];
+function claimAll() {
+  const el = document.getElementById('claimResult');
+  el.innerHTML = '<div style="color:#8A8378;font-size:.9rem">正在领取...</div>';
+  setTimeout(() => {
+    const got = CLAIM_POOL.slice(0, 1 + Math.floor(Math.random() * CLAIM_POOL.length));
+    el.innerHTML = `
+      <div style="background:#E8F5E9;border-left:4px solid #2E9E5B;border-radius:10px;padding:12px 16px;text-align:left">
+        <div style="font-weight:800;color:#2E7D32">🎉 领取成功！</div>
+        <div style="font-size:.9rem;margin-top:4px">已领取：${got.map(g => '「' + g + '」').join('、')} —— 已放入你的麦当劳账户</div>
+      </div>`;
+  }, 900);
 }
 
 renderRank();
