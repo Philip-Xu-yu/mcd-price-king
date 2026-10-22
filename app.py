@@ -178,6 +178,21 @@ def render_compare(r):
                                   f'{it["name"]} <b style="color:#DA291C">{p}</b></span>')
                     st.markdown(chips, unsafe_allow_html=True)
 
+    # 券自动匹配
+    for side, x in (("A", a), ("B", b)):
+        deals = x.get("deals") or []
+        if deals:
+            dl = deals[0]
+            st.markdown(
+                f'<div class="mcd-good" style="display:flex;justify-content:space-between;align-items:center">'
+                f'<div>🎟️ {side} 可用券「{dl["coupon"]}」'
+                f'{"（适用于套餐内「" + dl.get("for_item","") + "」）" if dl.get("for_item") else ""}'
+                f'<br><span class="small">到期 {dl["expire"]}</span></div>'
+                f'<div style="text-align:right"><span style="font-size:1.2rem;font-weight:800;color:#DA291C">¥{dl["price"]}</span>'
+                f' <span class="small"><s>¥{dl["original"]}</s></span>'
+                f'<br><span class="mcd-tag">省 ¥{dl["discount"]}</span></div></div>',
+                unsafe_allow_html=True)
+
     # 结论卡
     st.markdown(
         f'<div style="border:2px dashed #DA291C;border-radius:14px;padding:14px 18px;margin-top:14px">'

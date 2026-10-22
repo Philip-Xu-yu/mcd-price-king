@@ -134,6 +134,20 @@ th { color:var(--muted); font-weight:600; font-size:.8rem; }
   box-shadow:0 8px 24px rgba(245,168,0,.4); transition:all .18s; }
 .star-call .big-btn:hover { transform:translateY(-3px) scale(1.03); }
 .star-call .hint2 { color:var(--muted); font-size:.82rem; margin-top:10px; }
+
+/* 排行榜 */
+.rank-list { display:flex; flex-direction:column; gap:8px; }
+.rank-item { display:flex; align-items:center; gap:12px; background:#fff; border:1px solid var(--line); border-radius:14px; padding:10px 16px; transition:all .18s; cursor:pointer; }
+.rank-item:hover { transform:translateX(4px); border-color:#F5C518; box-shadow:0 6px 18px rgba(245,168,0,.15); }
+.rank-item .rk { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:.9rem; flex-shrink:0; }
+.rk-1 { background:linear-gradient(135deg,#FFD700,#F5A800); color:#5C3D00; box-shadow:0 2px 8px rgba(245,168,0,.4); }
+.rk-2 { background:linear-gradient(135deg,#E8E8E8,#C8C8C8); color:#444; }
+.rk-3 { background:linear-gradient(135deg,#E8B98A,#C88A5A); color:#5A3410; }
+.rk-n { background:#F5F1E8; color:#8A8378; }
+.rank-item img { width:44px; height:auto; border-radius:8px; }
+.rank-item .rn { flex:1; font-weight:600; font-size:.9rem; }
+.rank-item .rs { font-weight:800; color:#2E7D32; font-size:.92rem; white-space:nowrap; }
+.rank-item .rp { color:var(--muted); font-size:.8rem; white-space:nowrap; }
 .alert-note { background:#FFF8E1; border-left:4px solid var(--gold); border-radius:10px; padding:12px 16px; margin-top:14px; font-size:.9rem; color:#6B5A1A; }
 </style>
 </head>
@@ -155,6 +169,7 @@ th { color:var(--muted); font-weight:600; font-size:.8rem; }
 
   <div class="nav">
     <a href="#features">⚡ 它能做什么</a>
+    <a href="#rank">🏆 最划算</a>
     <a href="#try">⚖️ 在线试算</a>
     <a href="#how">🔍 原理</a>
     <a href="#truth">✅ 真实性</a>
@@ -167,6 +182,11 @@ th { color:var(--muted); font-weight:600; font-size:.8rem; }
     <div class="feat"><div class="ic">🧮</div><div class="nm">真实节省</div><div class="ds">拆开单点算总价，划线价之外的真实优惠</div></div>
     <div class="feat"><div class="ic">🍟</div><div class="nm">麦当劳度量衡</div><div class="ds">省下的钱 = 几份麦乐鸡，一眼有感觉</div></div>
     <div class="feat"><div class="ic">💎</div><div class="nm">券和积分</div><div class="ds">官方算价、积分怎么花、一键领券（完整应用）</div></div>
+  </div>
+
+  <div class="sec" id="rank"><h2>🏆 今日最划算 TOP5</h2><span class="hint">真实节省 = 拆开单点合计 - 套餐价 · 按官方数据快照排序</span></div>
+  <div class="card">
+    <div class="rank-list" id="rankList"></div>
   </div>
 
   <div class="sec" id="try"><h2>① 点选两个套餐，开始比价</h2><span class="hint">点击卡片放入 A / B 槽</span></div>
@@ -335,6 +355,32 @@ function compare() {
     <div class="note">💡 省下的 ¥${saving} ${metricText(saving)}${pN >= 0.1 ? `；蛋白差 ≈ ${pN} 份麦乐鸡(5块)` : ''}</div></div>`;
 }
 
+// 排行榜渲染（按真实节省排序 TOP5）
+function renderRank() {
+  const el = document.getElementById('rankList');
+  const sorted = [...DATA].sort((x, y) => y.save - x.save).slice(0, 5);
+  el.innerHTML = sorted.map((d, i) => {
+    const cls = i === 0 ? 'rk-1' : i === 1 ? 'rk-2' : i === 2 ? 'rk-3' : 'rk-n';
+    const idx = DATA.indexOf(d);
+    return `<div class="rank-item" onclick="rankPick(${idx})">
+      <div class="rk ${cls}">${i + 1}</div>
+      <img src="${d.image}" onerror="this.style.display='none'" alt="">
+      <div class="rn">${d.name}</div>
+      <div class="rs">省 ¥${d.save}</div>
+      <div class="rp">¥${d.price}</div>
+    </div>`;
+  }).join('');
+}
+
+function rankPick(i) {
+  selA = i;
+  selB = null;
+  document.getElementById('result').innerHTML = '';
+  renderMeals();
+  window.scrollTo({ top: document.getElementById('try').offsetTop - 80, behavior: 'smooth' });
+}
+
+renderRank();
 renderMeals();
 </script>
 </body>
