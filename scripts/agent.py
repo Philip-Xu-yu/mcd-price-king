@@ -262,6 +262,7 @@ def _meal_profile(token, name, store_code):
     if d.get("save", 0) is not None and d["save"] < 0:
         score += 20
     return {
+        "code": d.get("code"),
         "name": d["name"],
         "price": d["price"],
         "original": d["original"],
@@ -308,6 +309,17 @@ def compare(token, name_a, name_b, store_code=None):
                 "reason": f"没找到「{name_b}」"}
 
     refs = _metric_foods(menu)
+
+    # 券自动匹配：套餐本身 + 组成项的适用券
+    try:
+        a["deals"] = best_deal(token, a.get("code"), sc)
+        if not a["deals"]:
+            a["deals"] = combo_deals(token, a, sc)
+        b["deals"] = best_deal(token, b.get("code"), sc)
+        if not b["deals"]:
+            b["deals"] = combo_deals(token, b, sc)
+    except Exception:
+        a["deals"], b["deals"] = [], []
 
     # 差价
     diff = round(a["price"] - b["price"], 1)
@@ -375,6 +387,55 @@ def compare(token, name_a, name_b, store_code=None):
         "protein_food": protein_food,
         "verdict": verdict,
     }
+
+
+def combo_deals(token, profile, store_code=None):
+    """查套餐组成项适用的券（券适用于套餐内单品的情况）"""
+    sc = store_code or STORE_CODE
+    c = _client(token)
+    try:
+        coupons = c.call("query-store-coupons", {
+            "storeCode": sc, "orderType": 1, "beType": 1,
+        }).get("data", [])
+    except Exception:
+        return []
+    item_names = [it["name"] for it in profile.get("items", [])]
+    out = []
+    seen = set()
+    for cp in coupons:
+        for p in cp.get("products", []):
+            pname = p.get("productName", "")
+            for it in item_names:
+                if (pname and it) and (pname in it or it in pname):
+                    key = cp.get("couponId")
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    try:
+                        r = c.call("calculate-price", {
+                            "storeCode": sc, "orderType": 1, "beType": 1,
+                            "items": [{
+                                "productCode": p.get("productCode"), "quantity": 1,
+                                "couponId": cp.get("couponId"),
+                                "couponCode": cp.get("couponCode"),
+                            }],
+                        }).get("data", {})
+                    except Exception:
+                        r = None
+                    if r:
+                        out.append({
+                            "coupon": cp.get("title"),
+                            "price": r.get("price", 0) / 100,
+                            "original": r.get("productOriginalPrice", 0) / 100,
+                            "discount": r.get("discount", 0) / 100,
+                            "expire": (cp.get("tradeDateTime") or "").split(" ")[-1],
+                            "for_item": it,
+                        })
+                    break
+            else:
+                continue
+            break
+    return out
 
 
 def guard(token):
