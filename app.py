@@ -17,48 +17,123 @@ st.set_page_config(page_title="麦门比价王", page_icon="🍔", layout="cente
 # ══════════════════ 主题 ══════════════════
 st.markdown("""
 <style>
-.stApp { background: #FFFDF7; }
-.main .block-container { max-width: 900px; padding-top: 1.8rem; }
-h1, h2, h3 { color: #DA291C !important; font-weight: 800; }
+/* ── 全局：对齐静态页设计语言 ── */
+.stApp { background: #FAF9F6; }
+html, body, [class*="css"] {
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  color: #1F1B16;
+}
+.main .block-container { max-width: 920px; padding-top: 2rem; }
+header[data-testid="stHeader"] { background: transparent; }
+#MainMenu, footer { visibility: hidden; }
+[data-testid="stSidebar"] { background: #fff; border-right: 1px solid #ECE7DE; }
+h1, h2, h3 { color: #1F1B16 !important; font-weight: 800; letter-spacing: -0.2px; }
+[data-testid="stCaptionContainer"], .stCaption, [data-testid="stCaptionContainer"] p { color: #8A8378; }
+
+/* ── 按钮：红渐变主按钮 + 白描边次按钮 ── */
 .stButton > button {
-  background: #DA291C; color: white; border: none; border-radius: 10px;
-  font-weight: 700; padding: 0.5rem 1.4rem;
+  background: linear-gradient(135deg, #D62828, #A41D1D); color: #fff; border: none; border-radius: 14px;
+  font-weight: 700; padding: 0.55rem 1.5rem; box-shadow: 0 4px 14px rgba(214,40,40,0.24);
+  transition: all .18s;
 }
-.stButton > button:hover { background: #B82014; color: white; }
+.stButton > button:hover {
+  background: linear-gradient(135deg, #D62828, #A41D1D); color: #fff;
+  transform: translateY(-1px); box-shadow: 0 8px 20px rgba(214,40,40,0.30);
+}
+.stButton > button[kind="secondary"] {
+  background: #fff; color: #D62828; border: 1.5px solid #E8B8B3; box-shadow: none;
+}
+.stButton > button[kind="secondary"]:hover { border-color: #D62828; color: #D62828; background: #fff; transform: none; box-shadow: none; }
+.stButton > button:disabled { background: #E8E3D9; color: #B5ADA1; box-shadow: none; }
+a[data-testid="stLinkButton"] {
+  background: linear-gradient(135deg, #FFC72C, #F5A800); color: #5C3D00; border: none;
+  border-radius: 14px; font-weight: 700; padding: 0.55rem 1.2rem;
+  box-shadow: 0 4px 14px rgba(245,168,0,0.3); text-decoration: none; display: inline-block;
+  transition: all .18s;
+}
+a[data-testid="stLinkButton"]:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(245,168,0,0.4); color: #5C3D00; }
+
+/* ── 标签页 ── */
+[data-testid="stTabs"] [data-baseweb="tab-list"] { gap: 6px; border-bottom: 2px solid #ECE7DE; background: transparent; }
+[data-testid="stTabs"] [data-baseweb="tab"] {
+  height: auto; padding: 10px 18px; border-radius: 12px 12px 0 0;
+  color: #8A8378; font-weight: 600;
+}
+[data-testid="stTabs"] [aria-selected="true"] { color: #D62828 !important; }
+
+/* ── 胶囊（场景/分类选择）── */
+[data-testid="stPills"] button {
+  background: #fff; border: 1px solid #ECE7DE; border-radius: 999px;
+  color: #4A443C; font-weight: 600; padding: 6px 16px;
+}
+[data-testid="stPills"] button:hover { border-color: #D9D1C2; color: #1F1B16; }
+[data-testid="stPills"] button[aria-checked="true"],
+[data-testid="stPills"] button[aria-pressed="true"] {
+  background: linear-gradient(135deg, #FFC72C, #F5A800); color: #5C3D00; border-color: #F5A800;
+}
+
+/* ── Hero：深色渐变 + 金色渐变标题 ── */
 .mcd-hero {
-  background: linear-gradient(135deg, #DA291C 0%, #B82014 100%);
-  border-radius: 20px; padding: 26px 30px; color: white; margin-bottom: 16px;
+  position: relative; overflow: hidden; border-radius: 24px; padding: 40px 36px; color: #fff;
+  margin-bottom: 22px;
+  background:
+    radial-gradient(600px 260px at 85% -20%, rgba(245,168,0,0.35), transparent 60%),
+    radial-gradient(400px 200px at -10% 110%, rgba(255,255,255,0.08), transparent 50%),
+    linear-gradient(135deg, #1B1310 0%, #2A1712 55%, #3D160F 100%);
+  box-shadow: 0 16px 44px rgba(31,27,22,0.16);
 }
-.mcd-hero h2 { color: white !important; margin: 0; font-size: 1.9rem; }
-.mcd-hero p { color: #FFE9B8; margin: 8px 0 0; font-size: 1rem; }
+.mcd-hero::after { content: "🍔"; position: absolute; right: -16px; bottom: -26px; font-size: 110px; opacity: 0.09; transform: rotate(-8deg); }
+.mcd-badge {
+  display: inline-block; font-size: 0.74rem; letter-spacing: 1.5px; color: #FFD98A;
+  border: 1px solid rgba(255,217,138,0.45); border-radius: 30px; padding: 3px 12px; margin-bottom: 14px;
+}
+.mcd-hero h2 {
+  color: transparent !important; margin: 0 0 10px; font-size: 2.1rem;
+  background: linear-gradient(100deg, #FFFFFF 20%, #FFD98A 55%, #F5A800 80%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.mcd-hero p { color: rgba(255,255,255,0.72); margin: 0 0 18px; font-size: 1rem; }
+.mcd-hero-meta { display: flex; gap: 10px; flex-wrap: wrap; }
+.mcd-hero-num {
+  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 20px; padding: 5px 14px; font-size: 0.82rem; color: #FFE9B8;
+}
+.mcd-hero-dot { color: rgba(255,255,255,0.4); }
+
+/* ── 卡片与提示 ── */
 .mcd-tag {
-  display: inline-block; background: #FFC72C; color: #7A5200;
+  display: inline-block; background: linear-gradient(135deg, #FFC72C, #F5A800); color: #5C3D00;
   border-radius: 20px; padding: 2px 12px; font-size: 0.78rem; font-weight: 700; margin-right: 6px;
 }
-.mcd-warn { background: #FFF3E0; border-left: 4px solid #FF9800; padding: 10px 14px; border-radius: 8px; margin: 8px 0; }
-.mcd-bad { background: #FFEBEE; border-left: 4px solid #DA291C; padding: 10px 14px; border-radius: 8px; margin: 8px 0; }
-.mcd-good { background: #E8F5E9; border-left: 4px solid #4CAF50; padding: 10px 14px; border-radius: 8px; margin: 8px 0; }
-.small { color: #888; font-size: 0.8rem; }
+.mcd-warn { background: #FFF8E1; border-left: 4px solid #F5A800; padding: 10px 14px; border-radius: 10px; margin: 8px 0; }
+.mcd-bad { background: #FBEEEC; border-left: 4px solid #D62828; padding: 10px 14px; border-radius: 10px; margin: 8px 0; }
+.mcd-good { background: #EFF9F0; border-left: 4px solid #2E9E5B; padding: 10px 14px; border-radius: 10px; margin: 8px 0; }
+.small { color: #8A8378; font-size: 0.8rem; }
 .mcd-card {
-  background: white; border-radius: 14px; padding: 12px 16px; margin: 6px 0;
-  border: 1px solid #F0E6D2; box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+  background: #fff; border-radius: 16px; padding: 12px 16px; margin: 6px 0;
+  border: 1px solid #ECE7DE; box-shadow: 0 1px 3px rgba(31,27,22,0.04), 0 6px 20px rgba(31,27,22,0.04);
 }
 .vs-card {
-  background: white; border-radius: 16px; padding: 16px; border: 2px solid #F0E6D2;
-  height: 100%;
+  background: #fff; border-radius: 18px; padding: 16px; border: 1px solid #ECE7DE;
+  height: 100%; box-shadow: 0 1px 3px rgba(31,27,22,0.04);
 }
-.vs-card.win { border-color: #4CAF50; }
-.vs-card.lose { border-color: #DDD; }
-.metric-line { font-size: 0.92rem; margin: 6px 0; }
-.metric-line b { font-size: 1.05rem; }
+.vs-card.win { border-color: #F5A800; box-shadow: 0 8px 26px rgba(245,168,0,0.18); }
+.vs-card.lose { border-color: #ECE7DE; }
+.metric-line { font-size: 0.92rem; margin: 6px 0; color: #4A443C; }
+.metric-line b { font-size: 1.05rem; color: #1F1B16; }
 </style>
 """, unsafe_allow_html=True)
 
 st.markdown("""
 <div class="mcd-hero">
+  <span class="mcd-badge">麦当劳 MCP · 创意大赛参赛作品</span>
   <h2>🍔 麦门比价王</h2>
   <p>选择困难？把两个套餐拿来比一比 —— 价格、营养、谁更划算，一目了然。</p>
-  <p style="margin-top:10px;font-size:0.85rem;color:#FFD9D4">基于 126 个真实菜单 · 160 条官方营养数据 · 麦当劳 MCP 实时接口</p>
+  <div class="mcd-hero-meta">
+    <span class="mcd-hero-num">126 个真实菜单</span><span class="mcd-hero-dot">·</span>
+    <span class="mcd-hero-num">160 条官方营养数据</span><span class="mcd-hero-dot">·</span>
+    <span class="mcd-hero-num">麦当劳 MCP 实时接口</span>
+  </div>
 </div>
 """, unsafe_allow_html=True)
 
