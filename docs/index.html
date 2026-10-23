@@ -663,6 +663,14 @@ function closeShare() {
 
 renderRank();
 renderMeals();
+
+// 首屏自动比价第一对，打开就有结果
+selA = 0; selB = 1; compare();
+
+// 支持 #try 锚点直接滚到比价区（截图/分享用）
+if (location.hash === '#try') {
+  window.scrollTo(0, document.getElementById('try').offsetTop - 90);
+}
 </script>
 
 <div class="modal-overlay" id="shareModal" onclick="if(event.target===this)closeShare()">
