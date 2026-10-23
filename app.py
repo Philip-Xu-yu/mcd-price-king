@@ -204,6 +204,65 @@ def render_compare(r):
         unsafe_allow_html=True)
 
 
+def _do_order(side, name, code, store_code):
+    if not code:
+        st.error("该套餐没有可下单的餐品编码。")
+        return
+    with st.spinner(f"正在创建订单（{name}）..."):
+        res = safe_run(agent.create_combo_order, TOKEN, store_code, code)
+    if res.get("type") == "error" or not res.get("orderId"):
+        st.error("创建订单失败（可能限流或该门店不支持）。稍后再试。")
+    else:
+        st.session_state.order_result = {"side": side, "name": name, **res}
+        st.rerun()
+
+
+def render_order_section(r, store_code):
+    """比价结果底部：一键下单（真实建单）+ 取消"""
+    a, b = r["a"], r["b"]
+    st.markdown("### 🛒 一键下单")
+    st.caption("真实创建麦当劳订单（到店外带）。不支付不扣款，创建后 15 分钟内可取消。")
+    oa, ob = st.columns(2)
+    with oa:
+        if st.button(f"下单 A：{a['name']}", key="order_a", use_container_width=True):
+            _do_order("A", a["name"], a.get("code"), store_code)
+    with ob:
+        if st.button(f"下单 B：{b['name']}", key="order_b", use_container_width=True):
+            _do_order("B", b["name"], b.get("code"), store_code)
+
+    ord_ = st.session_state.get("order_result")
+    if ord_:
+        d = ord_.get("detail") or {}
+        items = "、".join(f"{p.get('productName','')}×{p.get('quantity','')}"
+                          for p in d.get("orderProductList", []))
+        st.markdown(
+            f'<div style="border:2px solid #F5A800;border-radius:16px;padding:16px 18px;'
+            f'background:#FFFDF5;margin-top:8px">'
+            f'<div style="font-weight:800;color:#B8860B">🛒 订单已创建（{ord_.get("side")}：{ord_.get("name")}）</div>'
+            f'<div class="small" style="margin-top:6px">订单号：{ord_.get("orderId")}</div>'
+            f'<div class="small">门店：{d.get("storeName","")}（{d.get("takeWay","外带")}）</div>'
+            f'<div class="small">商品：{items}</div>'
+            f'<div style="font-size:1.2rem;font-weight:800;color:#DA291C;margin-top:4px">'
+            f'应付 ¥{d.get("realTotalAmount", d.get("totalAmount", ""))}</div>'
+            f'<div class="small">支付时限：{d.get("expirePayTime","")} 前完成支付</div>'
+            f'</div>',
+            unsafe_allow_html=True)
+        c1, c2 = st.columns(2)
+        with c1:
+            st.link_button("💳 去支付（跳转麦当劳）", ord_.get("payH5Url") or "#",
+                           use_container_width=True)
+        with c2:
+            if st.button("取消这个订单", key="cancel_order_btn", use_container_width=True):
+                with st.spinner("取消中..."):
+                    cr = safe_run(agent.cancel_combo_order, TOKEN, ord_["orderId"])
+                if cr.get("success"):
+                    st.session_state.pop("order_result", None)
+                    st.success("✅ 订单已取消")
+                    st.rerun()
+                else:
+                    st.error("取消失败（可能已支付或已超时）")
+
+
 def render_guard(d):
     p = d["points"]
     c1, c2, c3 = st.columns(3)
@@ -438,16 +497,19 @@ with tab1:
                         st.warning(r.get("reason") or f"没找到「{cmp_a}」或「{cmp_b}」。")
                     else:
                         st.session_state.cmp_result = r
+                        st.session_state.pop("order_result", None)
             with col_clr:
                 if st.button("清空", use_container_width=True):
                     st.session_state.pop("cmp_a", None)
                     st.session_state.pop("cmp_b", None)
                     st.session_state.pop("cmp_result", None)
+                    st.session_state.pop("order_result", None)
                     st.rerun()
 
         # ── 结果（默认首屏示例）──
         if "cmp_result" in st.session_state:
             render_compare(st.session_state.cmp_result)
+            render_order_section(st.session_state.cmp_result, store_code)
         elif not cmp_a and not cmp_b:
             with st.spinner("准备示例比价..."):
                 r = safe_run(agent.compare, TOKEN, "巨无霸四件套", "板烧鸡腿堡四件套", store_code)
@@ -455,6 +517,7 @@ with tab1:
                 st.markdown('<p class="small" style="margin-top:10px">👇 示例：巨无霸四件套 vs 板烧鸡腿堡四件套（选择困难，直接看结论）</p>',
                             unsafe_allow_html=True)
                 render_compare(r)
+                render_order_section(r, store_code)
 
 with tab2:
     st.markdown("### 券和积分，别让它们悄悄过期")

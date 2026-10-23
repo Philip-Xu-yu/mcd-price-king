@@ -438,6 +438,40 @@ def combo_deals(token, profile, store_code=None):
     return out
 
 
+def create_combo_order(token, store_code, meal_code, quantity=1):
+    """真实创建麦当劳订单（到店外带）。返回 {orderId, payH5Url, detail, takeWay}"""
+    sc = store_code or STORE_CODE
+    c = _client(token)
+    # 1) 先算价，从返回里拿取餐方式列表（create-order 要求 takeWayCode 从这里选）
+    price = c.call("calculate-price", {
+        "storeCode": sc, "orderType": 1, "beType": 1,
+        "items": [{"productCode": meal_code, "quantity": quantity}],
+    }).get("data", {})
+    ways = price.get("takeWayList") or []
+    codes = [w.get("code") for w in ways if w.get("code")]
+    take = "take-in-store" if "take-in-store" in codes else (codes[0] if codes else "take-in-store")
+    # 2) 创建订单
+    r = c.call("create-order", {
+        "storeCode": sc, "orderType": 1, "beType": 1, "takeWayCode": take,
+        "items": [{"productCode": meal_code, "quantity": quantity}],
+    }).get("data", {})
+    return {
+        "orderId": r.get("orderId"),
+        "payH5Url": r.get("payH5Url"),
+        "detail": r.get("orderDetail") or {},
+        "takeWay": take,
+    }
+
+
+def cancel_combo_order(token, order_id, reason="3"):
+    """取消已创建订单。返回 {success, orderId}"""
+    c = _client(token)
+    r = c.call("cancel-order", {
+        "orderId": order_id, "cancelReasonCode": reason,
+    }).get("data", {})
+    return {"success": bool(r.get("cancelResult")), "orderId": order_id}
+
+
 def guard(token):
     """资产管家 → dict"""
     c = _client(token)
