@@ -87,7 +87,7 @@ export MCD_TOKEN="你的Token"
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
-.venv/bin/streamlit run app.py
+.venv/bin/streamlit run app.py --server.port 8766 --server.headless true --server.address 127.0.0.1
 ```
 
 浏览器打开 http://127.0.0.1:8766
