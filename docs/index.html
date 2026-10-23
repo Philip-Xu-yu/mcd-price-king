@@ -120,6 +120,16 @@ th { color:var(--muted); font-weight:600; font-size:.8rem; }
 .faq input:checked ~ .q::after { transform:rotate(180deg); }
 
 .foot { margin-top:40px; color:var(--muted); font-size:.8rem; text-align:center; }
+
+/* 分享卡片弹窗 */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); display:none; align-items:center; justify-content:center; z-index:100; padding:20px; }
+.modal-overlay.show { display:flex; }
+.modal-box { background:#fff; border-radius:20px; padding:18px; max-width:min(92vw,420px); width:100%; text-align:center; position:relative; box-shadow:0 24px 80px rgba(0,0,0,0.4); }
+.modal-box img { width:100%; border-radius:14px; display:block; }
+.m-close { position:absolute; top:-12px; right:-12px; width:36px; height:36px; border-radius:50%; background:#1F1B16; color:#fff; border:none; font-size:16px; cursor:pointer; line-height:1; }
+.modal-box .m-title { font-weight:800; margin-bottom:10px; font-size:1.05rem; }
+.modal-box .m-btns { display:flex; gap:10px; margin-top:12px; }
+.modal-box .m-btns .btn { flex:1; text-align:center; text-decoration:none; }
 .foot a { color:var(--p); }
 
 /* Star 按钮 */
@@ -283,6 +293,7 @@ const METRIC = [
   { name: '香芋派', price: 8, protein: 2 },
 ];
 let selA = null, selB = null, showAll = false;
+let lastResult = null;
 const mealsEl = document.getElementById('meals');
 const VISIBLE = 8;
 
@@ -330,6 +341,16 @@ function metricText(saving) {
   return best ? `≈ <b>${best.n}</b> 份「${best.name}」` : '不到一份「香芋派」';
 }
 
+function metricPlain(saving) {
+  if (saving < 1) return '不到一份「香芋派」';
+  let best = null;
+  for (const m of METRIC) {
+    const n = Math.floor(saving / m.price);
+    if (n >= 1) { const val = n * m.price; if (!best || val > best.val) best = { n: n, name: m.name, val: val }; }
+  }
+  return best ? '≈ ' + best.n + ' 份「' + best.name + '」' : '不到一份「香芋派」';
+}
+
 function compare() {
   if (selA === null || selB === null) { alert('先在卡片上选两个套餐（A 和 B）'); return; }
   const a = DATA[selA], b = DATA[selB];
@@ -369,11 +390,16 @@ function compare() {
       <div class="bar-row"><div class="lb">蛋白对比</div>
         <div class="bar-line"><div class="bar-a" style="width:${(a.protein/maxPro*50)}%">A ${a.protein} g</div><div class="bar-b" style="width:${(b.protein/maxPro*50)}%">B ${b.protein} g</div></div></div>
     </div>`;
+  lastResult = {
+    a: a, b: b, verdict: verdict,
+    metric: '省下的 ¥' + saving + ' ' + metricPlain(saving) + (pN >= 0.1 ? '；蛋白差 ≈ ' + pN + ' 份麦乐鸡(5块)' : '')
+  };
   document.getElementById('result').innerHTML = `
     <div class="cards">${card(a, cheaper === 'a')}${card(b, cheaper === 'b')}</div>${bars}
     <div class="verdict"><div class="t">⚖️ 结论</div>
     <div class="big">${verdict}</div>
-    <div class="note">💡 省下的 ¥${saving} ${metricText(saving)}${pN >= 0.1 ? `；蛋白差 ≈ ${pN} 份麦乐鸡(5块)` : ''}</div></div>`;
+    <div class="note">💡 省下的 ¥${saving} ${metricText(saving)}${pN >= 0.1 ? `；蛋白差 ≈ ${pN} 份麦乐鸡(5块)` : ''}</div></div>
+    <div class="btn-row" style="margin-top:14px"><button class="btn" onclick="genShare()">📤 生成分享卡片</button></div>`;
 }
 
 // 排行榜渲染（按真实节省排序 TOP5）
@@ -416,8 +442,240 @@ function claimAll() {
   }, 900);
 }
 
+// ===== 分享卡片（Canvas 手绘，零网络依赖） =====
+const CW = 900, CH = 1200;
+
+function roundedRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function wrapText(ctx, text, maxWidth) {
+  const lines = [];
+  let line = '';
+  for (const ch of text) {
+    if (ctx.measureText(line + ch).width > maxWidth) { lines.push(line); line = ch; }
+    else line += ch;
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+function drawSideBlock(ctx, F, label, x, y) {
+  // 标签 chip
+  const lg = ctx.createLinearGradient(80, 0, 132, 0);
+  lg.addColorStop(0, '#FFC72C'); lg.addColorStop(1, '#F5A800');
+  ctx.fillStyle = lg;
+  roundedRect(ctx, 80, y, 52, 44, 10);
+  ctx.fill();
+  ctx.font = '800 28px ' + F;
+  ctx.fillStyle = '#5C3D00';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(label, 106, y + 22);
+
+  // 名称
+  ctx.textAlign = 'left';
+  ctx.font = '700 30px ' + F;
+  ctx.fillStyle = '#fff';
+  ctx.fillText(x.name, 150, y + 22);
+
+  // 真实省
+  ctx.font = '700 22px ' + F;
+  ctx.fillStyle = '#7EDB9B';
+  ctx.fillText('真实省 ¥' + x.save, 150, y + 56);
+
+  // 价格
+  ctx.textAlign = 'right';
+  ctx.font = '800 42px ' + F;
+  ctx.fillStyle = '#F5A800';
+  ctx.fillText('¥' + x.price, CW - 80, y + 14);
+
+  // 划线价 + 删除线
+  ctx.font = '22px ' + F;
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  const st = '划线价 ¥' + x.original;
+  ctx.fillText(st, CW - 80, y + 46);
+  const sw = ctx.measureText(st).width;
+  ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(CW - 80 - sw, y + 46);
+  ctx.lineTo(CW - 80, y + 46);
+  ctx.stroke();
+}
+
+function drawShareCard() {
+  if (!lastResult) return null;
+  const a = lastResult.a, b = lastResult.b;
+  const cv = document.createElement('canvas');
+  cv.width = CW; cv.height = CH;
+  const ctx = cv.getContext('2d');
+  const F = '-apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
+
+  // 背景
+  const g = ctx.createLinearGradient(0, 0, CW, CH);
+  g.addColorStop(0, '#1B1310');
+  g.addColorStop(0.55, '#2A1712');
+  g.addColorStop(1, '#3D160F');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, CW, CH);
+
+  // 右上金色光晕
+  const rg = ctx.createRadialGradient(CW - 60, 0, 10, CW - 60, 0, 420);
+  rg.addColorStop(0, 'rgba(245,168,0,0.20)');
+  rg.addColorStop(1, 'rgba(245,168,0,0)');
+  ctx.fillStyle = rg;
+  ctx.fillRect(0, 0, CW, CH);
+
+  // 汉堡水印
+  ctx.save();
+  ctx.translate(CW - 70, CH - 130);
+  ctx.rotate(-0.15);
+  ctx.globalAlpha = 0.08;
+  ctx.font = '220px serif';
+  ctx.fillStyle = '#fff';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('🍔', 0, 0);
+  ctx.restore();
+  ctx.globalAlpha = 1;
+
+  // 徽章
+  ctx.font = '22px ' + F;
+  const badge = '麦当劳 MCP · 创意大赛参赛作品';
+  const bw = ctx.measureText(badge).width + 46;
+  ctx.strokeStyle = 'rgba(255,217,138,0.5)';
+  ctx.lineWidth = 1.5;
+  roundedRect(ctx, CW/2 - bw/2, 50, bw, 42, 21);
+  ctx.stroke();
+  ctx.fillStyle = '#FFD98A';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(badge, CW/2, 72);
+
+  // 标题（金色渐变）
+  ctx.font = '800 68px ' + F;
+  const tg = ctx.createLinearGradient(CW/2 - 150, 0, CW/2 + 150, 0);
+  tg.addColorStop(0.15, '#FFFFFF');
+  tg.addColorStop(0.55, '#FFD98A');
+  tg.addColorStop(0.85, '#F5A800');
+  ctx.fillStyle = tg;
+  ctx.fillText('麦门比价王', CW/2, 172);
+
+  // 副标题
+  ctx.font = '26px ' + F;
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.fillText('两个套餐，谁更划算？', CW/2, 226);
+
+  // 分隔线
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(80, 268);
+  ctx.lineTo(CW - 80, 268);
+  ctx.stroke();
+
+  // A / B
+  drawSideBlock(ctx, F, 'A', a, 305);
+  drawSideBlock(ctx, F, 'B', b, 520);
+
+  // 价格条
+  ctx.textAlign = 'left';
+  ctx.font = '22px ' + F;
+  ctx.fillStyle = 'rgba(255,255,255,0.55)';
+  ctx.fillText('价格对比（红 = A，黄 = B）', 80, 648);
+  const bw2 = CW - 160;
+  const maxP = Math.max(a.price, b.price, 1);
+  ctx.fillStyle = '#3A2A20';
+  roundedRect(ctx, 80, 668, bw2, 28, 8); ctx.fill();
+  const wa = Math.max((a.price / maxP) * (bw2 / 2), 60);
+  const ga = ctx.createLinearGradient(80, 0, 80 + wa, 0);
+  ga.addColorStop(0, '#D62828'); ga.addColorStop(1, '#E8584B');
+  ctx.fillStyle = ga;
+  roundedRect(ctx, 80, 668, wa, 28, 8); ctx.fill();
+  ctx.font = '700 20px ' + F;
+  ctx.fillStyle = '#fff';
+  ctx.fillText('A ¥' + a.price, 96, 682);
+  ctx.fillStyle = '#3A2A20';
+  roundedRect(ctx, 80, 710, bw2, 28, 8); ctx.fill();
+  const wb = Math.max((b.price / maxP) * (bw2 / 2), 60);
+  const gb = ctx.createLinearGradient(80, 0, 80 + wb, 0);
+  gb.addColorStop(0, '#F5A800'); gb.addColorStop(1, '#FFC72C');
+  ctx.fillStyle = gb;
+  roundedRect(ctx, 80, 710, wb, 28, 8); ctx.fill();
+  ctx.fillStyle = '#5C3D00';
+  ctx.fillText('B ¥' + b.price, 96, 724);
+
+  // 结论框
+  const vy = 772;
+  ctx.strokeStyle = 'rgba(229,185,179,0.8)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([12, 8]);
+  roundedRect(ctx, 80, vy, bw2, 215, 16);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.font = '800 28px ' + F;
+  ctx.fillStyle = '#FFD98A';
+  ctx.fillText('⚖️ 结论', 110, vy + 44);
+  ctx.font = '700 30px ' + F;
+  ctx.fillStyle = '#fff';
+  const vlines = wrapText(ctx, lastResult.verdict, bw2 - 60);
+  vlines.slice(0, 3).forEach(function(ln, i) {
+    ctx.fillText(ln, 110, vy + 82 + i * 40);
+  });
+  ctx.font = '22px ' + F;
+  ctx.fillStyle = '#FFD98A';
+  const mlines = wrapText(ctx, '💡 ' + lastResult.metric, bw2 - 60);
+  mlines.slice(0, 2).forEach(function(ln, i) {
+    ctx.fillText(ln, 110, vy + 176 + i * 30);
+  });
+
+  // 页脚
+  ctx.textAlign = 'center';
+  ctx.font = '22px ' + F;
+  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.fillText('github.com/Philip-Xu-yu/mcd-price-king', CW/2, 1090);
+  ctx.font = '18px ' + F;
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.fillText('数据来源：麦当劳官方 MCP · 价格以门店为准', CW/2, 1126);
+
+  return cv;
+}
+
+function genShare() {
+  if (!lastResult) { alert('先点「开始比价」，再生成卡片'); return; }
+  const cv = drawShareCard();
+  const url = cv.toDataURL('image/png');
+  document.getElementById('shareImg').src = url;
+  document.getElementById('shareDl').href = url;
+  document.getElementById('shareModal').classList.add('show');
+}
+
+function closeShare() {
+  document.getElementById('shareModal').classList.remove('show');
+}
+
 renderRank();
 renderMeals();
 </script>
+
+<div class="modal-overlay" id="shareModal" onclick="if(event.target===this)closeShare()">
+  <div class="modal-box">
+    <button class="m-close" onclick="closeShare()">✕</button>
+    <div class="m-title">📤 分享这张比价卡片</div>
+    <img id="shareImg" alt="麦门比价王比价卡片">
+    <div class="m-btns">
+      <a class="btn" id="shareDl" download="mcd-compare.png">下载图片</a>
+      <button class="btn ghost" onclick="closeShare()">关闭</button>
+    </div>
+    <div class="note" style="margin-top:10px">手机用户：长按图片可直接保存</div>
+  </div>
+</div>
 </body>
 </html>
