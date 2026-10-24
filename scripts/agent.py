@@ -14,11 +14,11 @@ def _client(token=None):
     return MCDClient(token)
 
 
-def check(token, name, store_code=None):
-    """单品鉴定 → dict"""
+def check(token, name, store_code=None, meals=None):
+    """单品鉴定 → dict；优先使用当前门店菜单，避免缓存价冒充实时价。"""
     sc = store_code or STORE_CODE
-    meals = parse_meals()
-    hits = [(c, v) for c, v in meals.items() if name.strip() in v["name"]]
+    meals = meals if meals is not None else parse_meals()
+    hits = [(c, v) for c, v in meals.items() if v["name"] == name.strip()]
     hits.sort(key=lambda x: -(x[1]["original_price"] - x[1]["price"]))
     if not hits:
         return {"type": "check", "found": False, "query": name}
@@ -54,6 +54,8 @@ def check(token, name, store_code=None):
         single_sum += p
         rows.append({"name": it, "price": p})
 
+    verified = all(row["price"] > 0 for row in rows) and bool(rows)
+    computed_save = round(single_sum - info["price"], 1) if verified else None
     return {
         "type": "check",
         "found": True,
@@ -65,8 +67,9 @@ def check(token, name, store_code=None):
         "category": info["category"],
         "items": rows,
         "single_sum": round(single_sum, 1),
-        "save": round(single_sum - info["price"], 1),
-        "strike_fake": info["original_price"] > single_sum,
+        "save": computed_save,
+        "save_verified": verified,
+        "strike_fake": verified and info["original_price"] > single_sum,
         "is_combo": bool(items),
     }
 
@@ -244,9 +247,9 @@ def _nutrition_of(items):
     return total
 
 
-def _meal_profile(token, name, store_code):
+def _meal_profile(token, name, store_code, meals=None):
     """套餐完整画像：价格 + 组成 + 营养 + 优惠评分"""
-    d = check(token, name, store_code)
+    d = check(token, name, store_code, meals=meals)
     if not d.get("found"):
         return None
     nut = _nutrition_of([it["name"] for it in d.get("items", [])])
@@ -267,6 +270,7 @@ def _meal_profile(token, name, store_code):
         "price": d["price"],
         "original": d["original"],
         "save": d["save"],
+        "save_verified": d.get("save_verified", False),
         "items": d["items"],
         "strike_fake": d["strike_fake"],
         "trick_score": min(score, 100),
@@ -292,13 +296,44 @@ def _metric_foods(menu):
     return refs
 
 
-def compare(token, name_a, name_b, store_code=None):
-    """两个套餐比价 → dict"""
+def recommend_budget(menu, budget, preference="省钱", limit=3):
+    """按单份套餐菜单展示价筛选；未知的拆单/营养数据不参与伪排序。"""
+    if budget <= 0 or limit < 1:
+        return []
+    candidates = [dict(code=code, **v) for code, v in menu.items()
+                  if v.get("name") and 0 < v.get("price", 0) <= budget
+                  and v.get("original_price", 0) > v.get("price", 0)]
+    if preference == "折扣":
+        candidates.sort(key=lambda v: (-(v["original_price"] - v["price"]), v["price"], v["name"]))
+    elif preference in ("蛋白质", "热量低"):
+        metric = "protein" if preference == "蛋白质" else "kcal"
+        known = [v for v in candidates if isinstance(v.get(metric), (int, float))
+                 and v.get(metric) is not None]
+        if not known:
+            return []
+        candidates = known
+        if preference == "蛋白质":
+            candidates.sort(key=lambda v: (-float(v[metric]), v["price"], v["name"]))
+        else:
+            candidates.sort(key=lambda v: (float(v[metric]), v["price"], v["name"]))
+    elif preference == "拆单差额":
+        known = [v for v in candidates if v.get("save_verified") is True
+                 and isinstance(v.get("save"), (int, float))]
+        if not known:
+            return []
+        candidates = known
+        candidates.sort(key=lambda v: (-float(v["save"]), v["price"], v["name"]))
+    else:
+        candidates.sort(key=lambda v: (v["price"], -(v["original_price"] - v["price"]), v["name"]))
+    return candidates[:limit]
+
+
+def compare(token, name_a, name_b, store_code=None, menu=None):
+    """两个套餐比价 → dict；传入门店菜单时使用同一门店的价格和编码。"""
     sc = store_code or STORE_CODE
-    from data_utils import parse_meals
-    menu = parse_meals()
-    a = _meal_profile(token, name_a, sc)
-    b = _meal_profile(token, name_b, sc)
+    menu = menu if menu is not None else (get_menu(token, sc) if store_code else parse_meals())
+    a = _meal_profile(token, name_a, sc, meals=menu)
+    b = _meal_profile(token, name_b, sc, meals=menu)
     if not a and not b:
         return {"type": "compare", "found": False, "a": name_a, "b": name_b}
     if not a:
@@ -323,10 +358,12 @@ def compare(token, name_a, name_b, store_code=None):
 
     # 差价
     diff = round(a["price"] - b["price"], 1)
-    if diff >= 0:
+    if diff < 0:
         cheaper, pricier, saving = "a", "b", abs(diff)
-    else:
+    elif diff > 0:
         cheaper, pricier, saving = "b", "a", abs(diff)
+    else:
+        cheaper, pricier, saving = "tie", "tie", 0.0
 
     # 麦当劳度量衡：省钱换算
     food_txt = ""
@@ -359,8 +396,10 @@ def compare(token, name_a, name_b, store_code=None):
     win_reasons = []
     if cheaper == "a":
         win_reasons.append(f"A 更省钱（省 ¥{saving}）")
-    else:
+    elif cheaper == "b":
         win_reasons.append(f"B 更省钱（省 ¥{saving}）")
+    else:
+        win_reasons.append("两款价格相同")
     if p_win == "a":
         win_reasons.append(f"A 蛋白更多（{p_a}g vs {p_b}g）")
     elif p_win == "b":

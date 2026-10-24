@@ -3,6 +3,8 @@
 运行:
     MCD_TOKEN=xxx .venv/bin/streamlit run app.py
 """
+import hashlib
+import html
 import os
 import sys
 
@@ -148,19 +150,36 @@ with st.sidebar:
     st.caption("Token 仅存于本次会话，关闭即清。")
 
 TOKEN = (user_token or os.getenv("MCD_TOKEN", "")).strip()
+TOKEN_FINGERPRINT = hashlib.sha256(TOKEN.encode()).hexdigest() if TOKEN else ""
+if st.session_state.get("token_fingerprint") != TOKEN_FINGERPRINT:
+    for key in ("guard_data", "stores", "store_menu", "store_code", "cmp_a", "cmp_b",
+                "cmp_result", "order_result"):
+        st.session_state.pop(key, None)
+    st.session_state.token_fingerprint = TOKEN_FINGERPRINT
 
 
 # ══════════════════ 工具 ══════════════════
-def safe_run(fn, *args):
+def esc(value):
+    return html.escape(str(value if value is not None else ""))
+
+
+def safe_run(fn, *args, **kwargs):
     try:
-        return fn(*args)
-    except Exception:
-        return {"type": "error"}
+        return fn(*args, **kwargs)
+    except Exception as exc:
+        return {"type": "error", "error_code": type(exc).__name__}
 
 
-def render_error():
-    st.markdown('<div class="mcd-bad">🍟 麦当劳接口开小差了（可能限流或 Token 无效）。'
-                '稍等几秒再试，或检查左侧 Token。</div>', unsafe_allow_html=True)
+def render_error(result=None):
+    code = (result or {}).get("error_code")
+    detail = {
+        "ValueError": "Token 未设置或格式不正确",
+        "HTTPError": "官方接口拒绝了请求，可能是 Token 无效、权限不足或触发限流",
+        "TimeoutError": "官方接口响应超时，请稍后重试",
+        "URLError": "网络连接失败，请检查网络后重试",
+    }.get(code, "官方接口暂时不可用，可能是网络、Token 或门店服务异常")
+    st.markdown(f'<div class="mcd-bad">接口调用失败：{esc(detail)}。请稍后再试。</div>',
+                unsafe_allow_html=True)
 
 
 SCENES = {
@@ -210,10 +229,10 @@ def render_compare(r):
                     unsafe_allow_html=True)
         if a["image"]:
             st.image(a["image"], width=160)
-        st.markdown(f'<b style="font-size:1.05rem">{a["name"]}</b>', unsafe_allow_html=True)
+        st.markdown(f'<b style="font-size:1.05rem">{esc(a["name"])}</b>', unsafe_allow_html=True)
         st.markdown(f'<div style="font-size:1.8rem;font-weight:800;color:#DA291C">¥{a["price"]}</div>'
                     f'<div class="small"><s>划线价 ¥{a["original"]}</s></div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="metric-line">真实省 <b>¥{a["save"]}</b></div>'
+        st.markdown(f'<div class="metric-line">{("拆单估算差额 <b>¥" + str(a["save"]) + "</b>") if a.get("save_verified") and a.get("save") is not None else "拆单差额待核实"}</div>'
                     f'<div class="metric-line">热量 <b>{a["kcal"]} kcal</b></div>'
                     f'<div class="metric-line">蛋白 <b>{a["protein"]} g</b></div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
@@ -229,10 +248,10 @@ def render_compare(r):
                     unsafe_allow_html=True)
         if b["image"]:
             st.image(b["image"], width=160)
-        st.markdown(f'<b style="font-size:1.05rem">{b["name"]}</b>', unsafe_allow_html=True)
+        st.markdown(f'<b style="font-size:1.05rem">{esc(b["name"])}</b>', unsafe_allow_html=True)
         st.markdown(f'<div style="font-size:1.8rem;font-weight:800;color:#DA291C">¥{b["price"]}</div>'
                     f'<div class="small"><s>划线价 ¥{b["original"]}</s></div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="metric-line">真实省 <b>¥{b["save"]}</b></div>'
+        st.markdown(f'<div class="metric-line">{("拆单估算差额 <b>¥" + str(b["save"]) + "</b>") if b.get("save_verified") and b.get("save") is not None else "拆单差额待核实"}</div>'
                     f'<div class="metric-line">热量 <b>{b["kcal"]} kcal</b></div>'
                     f'<div class="metric-line">蛋白 <b>{b["protein"]} g</b></div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
@@ -243,14 +262,14 @@ def render_compare(r):
         for col, x in ((ia, a), (ib, b)):
             with col:
                 if x.get("items"):
-                    st.markdown(f'<p class="small" style="margin:6px 0 2px">{x["name"]} 包含：</p>',
+                    st.markdown(f'<p class="small" style="margin:6px 0 2px">{esc(x["name"])} 包含：</p>',
                                 unsafe_allow_html=True)
                     chips = ""
                     for it in x["items"]:
                         p = f"¥{it['price']:.1f}" if it["price"] else "套餐内"
                         chips += (f'<span style="display:inline-block;background:#FFF8E7;border:1px solid #E8DCC3;'
                                   f'border-radius:10px;padding:3px 10px;margin:2px 4px 2px 0;font-size:0.8rem">'
-                                  f'{it["name"]} <b style="color:#DA291C">{p}</b></span>')
+                                  f'{esc(it["name"])} <b style="color:#DA291C">{p}</b></span>')
                     st.markdown(chips, unsafe_allow_html=True)
 
     # 券自动匹配
@@ -260,19 +279,19 @@ def render_compare(r):
             dl = deals[0]
             st.markdown(
                 f'<div class="mcd-good" style="display:flex;justify-content:space-between;align-items:center">'
-                f'<div>🎟️ {side} 可用券「{dl["coupon"]}」'
-                f'{"（适用于套餐内「" + dl.get("for_item","") + "」）" if dl.get("for_item") else ""}'
-                f'<br><span class="small">到期 {dl["expire"]}</span></div>'
+                    f'<div>🎟️ {esc(side)} 可用券「{esc(dl["coupon"])}」'
+                f'{"（只适用于套餐内单品「" + esc(dl.get("for_item", "")) + "」，不是整个套餐到手价）" if dl.get("for_item") else "（需以官方结算页为准）"}'
+                f'<br><span class="small">到期 {esc(dl["expire"])}</span></div>'
                 f'<div style="text-align:right"><span style="font-size:1.2rem;font-weight:800;color:#DA291C">¥{dl["price"]}</span>'
                 f' <span class="small"><s>¥{dl["original"]}</s></span>'
                 f'<br><span class="mcd-tag">省 ¥{dl["discount"]}</span></div></div>',
                 unsafe_allow_html=True)
 
     # 结论卡
-    st.markdown(
-        f'<div style="border:2px dashed #DA291C;border-radius:14px;padding:14px 18px;margin-top:14px">'
+        st.markdown(
+                f'<div style="border:2px dashed #DA291C;border-radius:14px;padding:14px 18px;margin-top:14px">'
         f'<div style="font-weight:800;color:#DA291C">⚖️ 结论</div>'
-        f'<div style="margin-top:6px;font-size:1.02rem">{r["verdict"]}</div>'
+        f'<div style="margin-top:6px;font-size:1.02rem">{esc(r["verdict"])}</div>'
         f'<div class="small" style="margin-top:8px">💡 省下的 ¥{r["saving"]} {r["food_txt"]}'
         f'{"；蛋白差 " + r["protein_food"] if r["protein_food"] else ""}</div>'
         f'</div>',
@@ -280,13 +299,20 @@ def render_compare(r):
 
 
 def _do_order(side, name, code, store_code):
-    if not code:
-        st.error("该套餐没有可下单的餐品编码。")
+    if not TOKEN:
+        st.error("请先填写 MCD Token。")
+        return
+    if not store_code:
+        st.error("请先搜索并选择门店，再下单。")
+        return
+    menu = st.session_state.get("store_menu") or {}
+    if not code or code not in menu or menu[code].get("name") != name:
+        st.error("餐品不在当前门店实时菜单中，不能创建订单。请重新选店并比价。")
         return
     with st.spinner(f"正在创建订单（{name}）..."):
         res = safe_run(agent.create_combo_order, TOKEN, store_code, code)
     if res.get("type") == "error" or not res.get("orderId"):
-        st.error("创建订单失败（可能限流或该门店不支持）。稍后再试。")
+        render_error(res)
     else:
         st.session_state.order_result = {"side": side, "name": name, **res}
         st.rerun()
@@ -295,14 +321,26 @@ def _do_order(side, name, code, store_code):
 def render_order_section(r, store_code):
     """比价结果底部：一键下单（真实建单）+ 取消"""
     a, b = r["a"], r["b"]
-    st.markdown("### 🛒 一键下单")
-    st.caption("真实创建麦当劳订单（到店外带）。不支付不扣款，创建后 15 分钟内可取消。")
+    st.markdown("### 🛒 创建订单")
+    st.caption("下面按钮会真实创建麦当劳订单，但不会自动支付。请先确认门店和套餐，创建后按官方状态处理。")
+    if not store_code or not st.session_state.get("store_menu"):
+        st.warning("请先搜索并选择门店，确认实时菜单加载成功；当前只展示比价，已禁用真实下单。")
+        return
+    store = next((s for s in st.session_state.get("stores", []) if s.get("code") == store_code), {})
+    st.markdown("**下单前预览（展示价，不是官方最终应付）**")
+    st.write(f"门店：{store.get('name', store_code)}｜数量：每单 1 份｜优惠券：未指定")
+    st.write(f"A：{a['name']} · 菜单展示价 ¥{a['price']:.1f}")
+    st.write(f"B：{b['name']} · 菜单展示价 ¥{b['price']:.1f}")
+    st.caption("下方按钮分别创建一笔订单；实际应付和取餐方式以创建前官方算价与订单结果为准。")
+    confirmed = st.checkbox("我已核对门店、商品、数量和展示价，确认创建真实订单", key="order_confirm")
     oa, ob = st.columns(2)
     with oa:
-        if st.button(f"下单 A：{a['name']}", key="order_a", use_container_width=True):
+        if st.button(f"创建 A 订单：{a['name']}", key="order_a", use_container_width=True,
+                     disabled=not confirmed):
             _do_order("A", a["name"], a.get("code"), store_code)
     with ob:
-        if st.button(f"下单 B：{b['name']}", key="order_b", use_container_width=True):
+        if st.button(f"创建 B 订单：{b['name']}", key="order_b", use_container_width=True,
+                     disabled=not confirmed):
             _do_order("B", b["name"], b.get("code"), store_code)
 
     ord_ = st.session_state.get("order_result")
@@ -313,13 +351,13 @@ def render_order_section(r, store_code):
         st.markdown(
             f'<div style="border:2px solid #F5A800;border-radius:16px;padding:16px 18px;'
             f'background:#FFFDF5;margin-top:8px">'
-            f'<div style="font-weight:800;color:#B8860B">🛒 订单已创建（{ord_.get("side")}：{ord_.get("name")}）</div>'
-            f'<div class="small" style="margin-top:6px">订单号：{ord_.get("orderId")}</div>'
-            f'<div class="small">门店：{d.get("storeName","")}（{d.get("takeWay","外带")}）</div>'
-            f'<div class="small">商品：{items}</div>'
+            f'<div style="font-weight:800;color:#B8860B">🛒 订单已创建（{esc(ord_.get("side"))}：{esc(ord_.get("name"))}）</div>'
+            f'<div class="small" style="margin-top:6px">订单号：{esc(ord_.get("orderId"))}</div>'
+            f'<div class="small">门店：{esc(d.get("storeName", ""))}（{esc(d.get("takeWay", "外带"))}）</div>'
+            f'<div class="small">商品：{esc(items)}</div>'
             f'<div style="font-size:1.2rem;font-weight:800;color:#DA291C;margin-top:4px">'
-            f'应付 ¥{d.get("realTotalAmount", d.get("totalAmount", ""))}</div>'
-            f'<div class="small">支付时限：{d.get("expirePayTime","")} 前完成支付</div>'
+            f'应付 ¥{esc(d.get("realTotalAmount", d.get("totalAmount", "")))}</div>'
+            f'<div class="small">支付时限：{esc(d.get("expirePayTime", ""))} 前完成支付</div>'
             f'</div>',
             unsafe_allow_html=True)
         c1, c2 = st.columns(2)
@@ -356,40 +394,40 @@ def render_guard(d):
             if "discount" in cp:
                 star = " 👑 全场最值" if (best and cp is best) else ""
                 st.markdown(f'<div class="mcd-card" style="display:flex;justify-content:space-between;align-items:center">'
-                            f'<div><b>{cp["title"]}</b><span style="color:#DA291C;font-weight:800">{star}</span>'
-                            f'<br><span class="small">到期 {cp["expire"]}｜{cp["product"]}</span></div>'
+                            f'<div><b>{esc(cp["title"])}</b><span style="color:#DA291C;font-weight:800">{esc(star)}</span>'
+                            f'<br><span class="small">到期 {esc(cp["expire"])}｜{esc(cp["product"])}</span></div>'
                             f'<div style="text-align:right"><span style="font-size:1.3rem;font-weight:800;color:#DA291C">¥{cp["price"]}</span>'
                             f' <span class="small"><s>¥{cp["original"]}</s></span><br>'
                             f'<span class="mcd-tag">省 ¥{cp["discount"]}</span></div></div>',
                             unsafe_allow_html=True)
             else:
-                st.markdown(f'<div style="padding:6px 14px"><b>{cp["title"]}</b>'
-                            f'<span class="small">（到期 {cp["expire"]}）</span></div>', unsafe_allow_html=True)
+                st.markdown(f'<div style="padding:6px 14px"><b>{esc(cp["title"])}</b>'
+                            f'<span class="small">（到期 {esc(cp["expire"])}）</span></div>', unsafe_allow_html=True)
 
     if d["mall_can"]:
         st.markdown("**📦 积分现在就能换：**")
         for r in d["mall_can"]:
-            st.markdown(f'<div class="mcd-good" style="margin:4px 0">✅ <b>{r["name"]}</b> —— {r["point"]:.0f} 积分</div>',
+            st.markdown(f'<div class="mcd-good" style="margin:4px 0">✅ <b>{esc(r["name"])}</b> —— {r["point"]:.0f} 积分</div>',
                         unsafe_allow_html=True)
     if d["mall_next"]:
-        st.markdown(f'<div class="mcd-warn">📈 再攒 <b>{d["mall_next_gap"]}</b> 分能换「{d["mall_next"]["name"]}」</div>',
+        st.markdown(f'<div class="mcd-warn">📈 再攒 <b>{d["mall_next_gap"]}</b> 分能换「{esc(d["mall_next"]["name"])}」</div>',
                     unsafe_allow_html=True)
     if d["unclaimed"]:
         st.markdown("**✚ 麦当劳想请你吃，你还没收：**")
         for n in d["unclaimed"]:
-            st.markdown(f'<div class="mcd-warn" style="margin:4px 0">✚ <b>{n}</b> —— 去 App 领掉它</div>',
+            st.markdown(f'<div class="mcd-warn" style="margin:4px 0">✚ <b>{esc(n)}</b> —— 去 App 领掉它</div>',
                         unsafe_allow_html=True)
         if st.button("一键全领了", type="primary", key="claim_btn"):
             with st.spinner("正在领取..."):
                 r = safe_run(agent.claim_all_coupons, TOKEN)
             if r and r.get("type") == "error":
-                render_error()
+                render_error(r)
             else:
                 if r["success"]:
-                    st.markdown(f'<div class="mcd-good">🎉 已领取：{", ".join(r["success"])}</div>',
+                    st.markdown(f'<div class="mcd-good">🎉 已领取：{esc(", ".join(str(x) for x in r["success"]))}</div>',
                                 unsafe_allow_html=True)
                 if r["failed"]:
-                    st.markdown(f'<div class="mcd-warn">领取失败：{", ".join(r["failed"])}</div>',
+                    st.markdown(f'<div class="mcd-warn">领取失败：{esc(", ".join(str(x) for x in r["failed"]))}</div>',
                                 unsafe_allow_html=True)
 
 
@@ -421,7 +459,9 @@ with tab1:
             kw = "" if "不限" in district else district.replace("区", "").replace("县", "")
             with st.spinner("搜索门店中..."):
                 stores = safe_run(agent.find_stores, TOKEN, city, kw)
-            if stores == {"type": "error"} or not stores:
+            if isinstance(stores, dict) and stores.get("type") == "error":
+                render_error(stores)
+            elif not stores:
                 st.warning(f"没搜到 {city}{district} 的门店，换个区试试。")
             else:
                 st.session_state.stores = stores
@@ -438,8 +478,8 @@ with tab1:
                     border = "2px solid #DA291C" if active else "1px solid #F0E6D2"
                     st.markdown(
                         f'<div style="border:{border};border-radius:12px;padding:8px 12px;margin:4px 0;background:white">'
-                        f'<b>📍 {s["name"]}</b><br>'
-                        f'<span class="small">{s.get("address","")}｜{dist_txt}</span></div>',
+                        f'<b>📍 {esc(s["name"])}</b><br>'
+                        f'<span class="small">{esc(s.get("address", ""))}｜{esc(dist_txt)}</span></div>',
                         unsafe_allow_html=True)
                     if st.button("选这家", key=f"store_{i}", use_container_width=True):
                         st.session_state.store_code = s["code"]
@@ -452,7 +492,9 @@ with tab1:
             if st.session_state.get("store_code") and not st.session_state.get("store_menu"):
                 with st.spinner("加载该门店菜单..."):
                     menu = safe_run(agent.get_menu, TOKEN, st.session_state.store_code)
-                if menu != {"type": "error"} and menu:
+                if isinstance(menu, dict) and menu.get("type") == "error":
+                    render_error(menu)
+                elif menu:
                     st.session_state.store_menu = menu
 
         store_code = st.session_state.get("store_code")
@@ -466,13 +508,46 @@ with tab1:
                     st.markdown(
                         f'<div style="background:#FFF8E7;border:1px solid #FFC72C;border-radius:10px;'
                         f'padding:6px 12px;margin:8px 0;font-size:0.88rem">'
-                        f'📍 当前门店：<b>{s["name"]}</b>｜{s.get("address","")}'
-                        f'{"｜距你 " + str(s["distance"]) + " 米" if s.get("distance") else ""}</div>',
+                        f'📍 当前门店：<b>{esc(s["name"])}</b>｜{esc(s.get("address", ""))}'
+                        f'{"｜距你 " + esc(s["distance"]) + " 米" if s.get("distance") else ""}</div>',
                         unsafe_allow_html=True)
                     break
 
-        # ── ② 选套餐比价 ──
-        st.markdown("**② 选两个套餐比一比**")
+        # ── ② 预算推荐（仅菜单展示价，不能代替官方算价）──
+        st.markdown("**② 按预算快速找套餐**")
+        st.caption("仅筛选单份套餐菜单展示价，不叠券、不代表整单应付；下单前以官方核价为准。")
+        budget_col, pref_col = st.columns([2, 1])
+        with budget_col:
+            budget = st.number_input("单份预算（元）", min_value=1.0, max_value=500.0,
+                                     value=35.0, step=1.0)
+        with pref_col:
+            budget_menu = cur_meals or default_menu()
+            preferences = ["价格最低", "折扣"]
+            if any(v.get("save_verified") is True and isinstance(v.get("save"), (int, float))
+                   for v in budget_menu.values()):
+                preferences.append("拆单差额")
+            if any(isinstance(v.get("protein"), (int, float)) for v in budget_menu.values()):
+                preferences.append("蛋白质")
+            if any(isinstance(v.get("kcal"), (int, float)) for v in budget_menu.values()):
+                preferences.append("热量低")
+            preference = st.selectbox("优先考虑", preferences)
+        pref_key = {"价格最低": "省钱", "拆单差额": "拆单差额", "折扣": "折扣", "蛋白质": "蛋白质", "热量低": "热量低"}[preference]
+        suggestions = agent.recommend_budget(budget_menu, budget, pref_key)
+        st.caption("拆单差额与营养排序仅在有可核对数据时开放；当前门店菜单通常只支持价格和划线价差。")
+        if not cur_meals:
+            st.info("尚未加载门店实时菜单；以下为历史菜单快照，仅用于试算。")
+        if suggestions:
+            cols = st.columns(len(suggestions))
+            for col, item in zip(cols, suggestions):
+                with col:
+                    st.markdown(f"**{esc(item['name'])}**")
+                    gap = item.get("original_price", 0) - item.get("price", 0)
+                    st.caption(f"展示价 ¥{item['price']:.1f} · 划线价差 ¥{gap:.1f} · 当前排序：{preference}")
+        else:
+            st.info("当前预算或排序条件下没有可核对的套餐；试着提高预算、切换门店或改用价格排序。")
+
+        # ── ③ 选套餐比价 ──
+        st.markdown("**③ 选两个套餐比一比**")
 
         # 场景 → 细分类 双排胶囊
         scene_map = {s: [] for s in SCENES}
@@ -526,7 +601,7 @@ with tab1:
                 with grid[i % COLS]:
                     if img:
                         st.image(img, width=130)
-                    st.markdown(f'<b style="font-size:0.88rem">{name}</b>', unsafe_allow_html=True)
+                    st.markdown(f'<b style="font-size:0.88rem">{esc(name)}</b>', unsafe_allow_html=True)
                     if price != "":
                         st.markdown(f'<span style="color:#DA291C;font-weight:800">¥{price}</span>'
                                     f' <span class="small"><s>¥{orig}</s></span>', unsafe_allow_html=True)
@@ -550,26 +625,27 @@ with tab1:
         cmp_a = st.session_state.get("cmp_a")
         cmp_b = st.session_state.get("cmp_b")
         if cmp_a or cmp_b:
-            st.markdown("**③ 比一比**")
+            st.markdown("**④ 比一比**")
             slot1, slot2 = st.columns(2)
             with slot1:
                 st.markdown(f'<div class="mcd-card" style="text-align:center">'
-                            f'<div class="small">A 位</div><b>{cmp_a or "待选择"}</b></div>',
+                            f'<div class="small">A 位</div><b>{esc(cmp_a or "待选择")}</b></div>',
                             unsafe_allow_html=True)
             with slot2:
                 st.markdown(f'<div class="mcd-card" style="text-align:center">'
-                            f'<div class="small">B 位</div><b>{cmp_b or "待选择"}</b></div>',
+                            f'<div class="small">B 位</div><b>{esc(cmp_b or "待选择")}</b></div>',
                             unsafe_allow_html=True)
             col_go, col_clr = st.columns([2, 1])
             with col_go:
                 if st.button("开始比价 ⚖️", type="primary", use_container_width=True,
                              disabled=not (cmp_a and cmp_b)):
                     with st.spinner("计算中..."):
-                        r = safe_run(agent.compare, TOKEN, cmp_a, cmp_b, store_code)
-                    if r == {"type": "error"}:
-                        render_error()
+                        r = safe_run(agent.compare, TOKEN, cmp_a, cmp_b, store_code,
+                                     menu=st.session_state.get("store_menu"))
+                    if r.get("type") == "error":
+                        render_error(r)
                     elif not r.get("found"):
-                        st.warning(r.get("reason") or f"没找到「{cmp_a}」或「{cmp_b}」。")
+                        st.warning(r.get("reason") or "没有找到所选套餐，请重新选择。")
                     else:
                         st.session_state.cmp_result = r
                         st.session_state.pop("order_result", None)
@@ -584,15 +660,18 @@ with tab1:
         # ── 结果（默认首屏示例）──
         if "cmp_result" in st.session_state:
             render_compare(st.session_state.cmp_result)
-            render_order_section(st.session_state.cmp_result, store_code)
+            with st.expander("高级功能：创建真实订单（可选，默认关闭）", expanded=False):
+                render_order_section(st.session_state.cmp_result, store_code)
         elif not cmp_a and not cmp_b:
             with st.spinner("准备示例比价..."):
-                r = safe_run(agent.compare, TOKEN, "巨无霸四件套", "板烧鸡腿堡四件套", store_code)
-            if r != {"type": "error"} and r.get("found"):
+                r = safe_run(agent.compare, TOKEN, "巨无霸四件套", "板烧鸡腿堡四件套", store_code,
+                             menu=st.session_state.get("store_menu"))
+            if r.get("type") != "error" and r.get("found"):
                 st.markdown('<p class="small" style="margin-top:10px">👇 示例：巨无霸四件套 vs 板烧鸡腿堡四件套（选择困难，直接看结论）</p>',
                             unsafe_allow_html=True)
                 render_compare(r)
-                render_order_section(r, store_code)
+                with st.expander("高级功能：创建真实订单（可选，默认关闭）", expanded=False):
+                    render_order_section(r, store_code)
 
 with tab2:
     st.markdown("### 券和积分，别让它们悄悄过期")
@@ -605,7 +684,7 @@ with tab2:
                 st.session_state.guard_data = safe_run(agent.guard, TOKEN)
         data = st.session_state.guard_data
         if data.get("type") == "error":
-            render_error()
+            render_error(data)
         else:
             render_guard(data)
         if st.button("🔄 刷新", use_container_width=True):

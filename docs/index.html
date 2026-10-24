@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>麦门比价王 · 在线试算 | 麦当劳套餐比价</title>
 <style>
-:root { --p:#D62828; --gold:#F5A800; --bg:#FAF9F6; --ink:#1F1B16; --muted:#8A8378; --line:#ECE7DE; --card:#FFFFFF; }
+:root { --p:#B42318; --gold:#D9A441; --bg:#F4F1EB; --ink:#24211D; --muted:#756F66; --line:#DAD4C9; --card:#FCFBF8; --soft:#EAE5DB; }
 * { margin:0; padding:0; box-sizing:border-box; }
 html { scroll-behavior:smooth; }
 body { background:var(--bg); font-family:-apple-system,"SF Pro Display","PingFang SC","Microsoft YaHei",sans-serif; color:var(--ink); line-height:1.7; -webkit-font-smoothing:antialiased; }
@@ -17,7 +17,7 @@ body { background:var(--bg); font-family:-apple-system,"SF Pro Display","PingFan
               radial-gradient(700px 350px at -10% 110%, rgba(255,255,255,.08), transparent 50%),
               linear-gradient(135deg,#1B1310 0%,#2A1712 55%,#3D160F 100%);
   margin-bottom:22px; box-shadow:0 20px 60px rgba(31,27,22,.18); }
-.hero::after { content:"🍔"; position:absolute; right:-20px; bottom:-30px; font-size:150px; opacity:.08; transform:rotate(-8deg); }
+.hero::after { display:none; }
 .badge { display:inline-block; font-size:.76rem; letter-spacing:1.5px; color:#FFD98A; border:1px solid rgba(255,217,138,.45); border-radius:30px; padding:4px 14px; margin-bottom:16px; }
 .hero h1 { font-size:2.6rem; font-weight:800; letter-spacing:-1px; margin-bottom:12px;
   background:linear-gradient(100deg,#FFFFFF 20%,#FFD98A 55%,#F5A800 80%);
@@ -171,79 +171,199 @@ th { color:var(--muted); font-weight:600; font-size:.8rem; }
   .rank-item .rp { display: none; }
 }
 .alert-note { background:#FFF8E1; border-left:4px solid var(--gold); border-radius:10px; padding:12px 16px; margin-top:14px; font-size:.9rem; color:#6B5A1A; }
+/* Editorial refresh: one clear decision path, restrained surfaces and typography. */
+html { scroll-padding-top:80px; }
+body { background:var(--bg); font-size:1rem; }
+.wrap { max-width:1120px; padding:26px clamp(18px,4vw,52px) 96px; }
+.hero { border-radius:0; padding:clamp(48px,7vw,96px) clamp(26px,5vw,72px); margin-bottom:0;
+  background:#24211D; box-shadow:none; min-height:390px; display:grid; grid-template-columns:minmax(0,1.2fr) minmax(240px,.8fr); gap:40px; align-items:end; }
+.hero::after { display:none; }
+.hero h1 { background:none; -webkit-text-fill-color:#F8F4EC; color:#F8F4EC; font-size:clamp(3.2rem,7vw,6.5rem); line-height:1.02; letter-spacing:-.06em; max-width:8ch; margin:12px 0 26px; }
+.hero .sub { font-size:1.05rem; line-height:1.8; color:#D4CDC1; max-width:38ch; margin:0; }
+.hero-copy::after { content:'不需要登录 · 不会下单 · 先看懂再决定'; display:block; margin-top:26px; color:#AFA79B; font-size:.78rem; letter-spacing:.08em; }
+.badge { border:0; padding:0; border-radius:0; color:#D9A441; font-size:.78rem; letter-spacing:.12em; margin:0; }
+.demo { display:flex; flex-direction:column; justify-content:flex-end; align-self:stretch; padding:0 0 0 26px; border:0; border-left:1px solid #6B6254; border-radius:0; background:none; backdrop-filter:none; }
+.demo .num { display:block; font-size:clamp(1.3rem,2vw,1.75rem); font-weight:600; }
+.demo .vs { display:none; }
+.demo .num:nth-child(3) { color:#F0C166; }
+.demo .save { display:inline-block; width:max-content; margin:16px 0; border-radius:0; background:#D9A441; color:#24211D; box-shadow:none; font-size:.88rem; }
+.demo .tag { display:block; color:#AFA79B; }
+.star-btn { margin-top:22px; border-radius:0; border:1px solid #9B9181; background:transparent; color:#F8F4EC; box-shadow:none; font-size:.88rem; padding:10px 16px; }
+.star-btn:hover { transform:none; box-shadow:none; background:#3A352E; }
+.nav { position:static; width:100%; justify-content:flex-start; margin:0 0 72px; padding:16px 0; gap:20px; border:0; border-bottom:1px solid var(--line); border-radius:0; box-shadow:none; background:none; backdrop-filter:none; }
+.nav a { padding:0; font-size:.85rem; border-radius:0; color:var(--muted); }
+.nav a:hover { background:none; color:var(--p); }
+.sec { display:block; margin:76px 0 22px; border-top:1px solid var(--ink); padding-top:17px; }
+.sec h2 { font-size:clamp(1.5rem,2.8vw,2.3rem); line-height:1.2; letter-spacing:-.04em; }
+.sec .hint { display:block; margin-top:8px; font-size:.92rem; }
+.card { background:transparent; box-shadow:none; border:0; border-radius:0; padding:0; }
+.feat-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 40px; }
+.feat { padding:22px 0; border:0; border-bottom:1px solid var(--line); border-radius:0; background:none; }
+.feat:hover { transform:none; box-shadow:none; }
+.feat .ic { display:none; }
+.feat .nm { font-size:1.15rem; margin:0 0 5px; }
+.feat .ds { font-size:.94rem; }
+.meal-grid { gap:0 18px; }
+.meal { border:0; border-bottom:1px solid var(--line); border-radius:0; background:none; padding:20px 8px 20px 0; text-align:left; }
+.meal:hover { transform:none; box-shadow:none; border-color:var(--p); }
+.meal.sel-a,.meal.sel-b { border:0; border-bottom:3px solid var(--p); padding:20px 8px 18px 0; }
+.meal.sel-b { border-color:var(--gold); }
+.meal img { width:100%; max-width:140px; height:112px; object-fit:contain; border-radius:0; }
+.meal .nm { font-size:.95rem; line-height:1.4; min-height:2.7em; }
+.meal .pr { font-size:1.15rem; }
+.slots { margin:0 0 22px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); gap:0; }
+.slot { min-width:0; border:0; border-right:1px solid var(--line); border-radius:0; text-align:left; padding:18px 20px; }
+.slot:last-child { border-right:0; }
+.btn { border-radius:2px; background:var(--p); box-shadow:none; padding:12px 22px; font-size:.94rem; }
+.btn:disabled { cursor:not-allowed; opacity:.42; background:var(--muted); transform:none; }
+.btn:hover { transform:none; box-shadow:none; background:#8E1E17; }
+.btn.ghost { border-radius:2px; border-color:var(--ink); background:transparent; color:var(--ink); }
+.btn.ghost:hover { background:var(--soft); border-color:var(--ink); }
+.btn:focus-visible,.nav a:focus-visible,.meal:focus-visible,input:focus-visible,.faq .q:focus-visible { outline:2px solid var(--p); outline-offset:3px; }
+.cards { gap:0; border-top:1px solid var(--ink); border-bottom:1px solid var(--ink); margin-top:34px; }
+.rcard,.rcard.win { border:0; border-radius:0; background:none; box-shadow:none; text-align:left; padding:28px 24px; }
+.rcard:first-child { border-right:1px solid var(--line); }
+.rcard img { width:120px; height:120px; object-fit:contain; }
+.rcard .price { font-size:clamp(2.2rem,4vw,3.5rem); line-height:1.15; letter-spacing:-.05em; }
+.rcard .nm { min-height:2.6em; }
+.crown { position:static; transform:none; width:fit-content; border:0; border-radius:0; box-shadow:none; background:var(--ink); color:#F8F4EC; padding:3px 8px; margin-bottom:10px; }
+.bars { margin-top:26px; }
+.bar-line { border-radius:0; }
+.bar-a,.bar-b { background:var(--p); }
+.bar-b { background:var(--gold); }
+.verdict { border:0; border-left:4px solid var(--p); border-radius:0; background:#EAE5DB; padding:22px 26px; margin-top:28px; }
+.rank-list { gap:0; }
+.rank-item { border:0; border-bottom:1px solid var(--line); border-radius:0; background:none; padding:14px 4px; }
+.rank-item:hover { transform:none; box-shadow:none; border-color:var(--p); }
+.rank-item .rs { color:var(--p); }
+.step .no { border-radius:0; box-shadow:none; background:var(--ink); color:#F8F4EC; }
+.faq { border:0; border-bottom:1px solid var(--line); border-radius:0; background:none; margin:0; }
+.star-call .big-btn { border-radius:2px; background:var(--ink); color:#F8F4EC; box-shadow:none; }
+.star-call .big-btn:hover { transform:none; }
+@media (max-width:760px) {
+  .hero { grid-template-columns:1fr; min-height:0; gap:32px; }
+  .hero h1 { max-width:none; }
+  .demo { padding-left:18px; }
+  .nav { gap:10px 18px; margin-bottom:46px; }
+  .nav a { font-size:.78rem; }
+  .sec { margin-top:58px; }
+  .cards { grid-template-columns:1fr; }
+  .rcard:first-child { border-right:0; border-bottom:1px solid var(--line); }
+  .feat-grid { grid-template-columns:1fr; }
+  .slots { flex-direction:column; }
+  .slot { border-right:0; border-bottom:1px solid var(--line); }
+  .slot:last-child { border-bottom:0; }
+  .meal-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+.slot-label { display:block; color:var(--muted); font-size:.78rem; letter-spacing:.1em; margin-bottom:4px; }
+.slot b { display:block; color:var(--ink); font-weight:600; }
+.meal { appearance:none; width:100%; color:inherit; font:inherit; }
+.meal.sel-a::after,.meal.sel-b::after { content:"已选 A"; display:block; color:var(--p); font-size:.78rem; font-weight:700; }
+.meal.sel-b::after { content:"已选 B"; color:#8A6116; }
+.meal-grid > .meal:hover { background:rgba(217,164,65,.07); }
+.rank-item { appearance:none; width:100%; color:inherit; font:inherit; text-align:left; }
+.secondary { margin-top:64px; border-color:var(--line); }
+.secondary h2 { font-size:clamp(1.25rem,2vw,1.65rem); }
+.alert-note { border-radius:0; background:var(--soft); color:var(--ink); }
+.faq .q:focus-visible,.rank-item:focus-visible { outline:2px solid var(--p); outline-offset:2px; }
+#budgetInput { border-radius:2px!important; background:var(--card); }
+#budgetResult:empty { display:none; }
+.star-call { text-align:left; }
+.star-call .big-btn { font-size:.95rem; padding:13px 22px; }
+  .foot { text-align:left; border-top:1px solid var(--line); padding-top:24px; }
+  .btn:disabled { cursor:not-allowed; opacity:.42; background:var(--muted); transform:none; }
+  .snapshot-strip { display:flex; gap:14px; align-items:baseline; border-left:3px solid var(--gold); padding:10px 14px; margin:0 0 22px; color:var(--muted); font-size:.82rem; }
+  .snapshot-strip b { color:var(--ink); white-space:nowrap; font-size:.78rem; letter-spacing:.08em; }
+  .support { display:grid; grid-template-columns:1.25fr .75fr; gap:32px; align-items:end; background:var(--ink); color:#F8F4EC; margin-top:76px; padding:clamp(28px,5vw,56px); }
+  .support .eyebrow { color:#D9A441; font-size:.75rem; letter-spacing:.16em; }
+  .support h2 { font-size:clamp(1.65rem,3vw,2.7rem); letter-spacing:-.045em; line-height:1.2; margin:14px 0; }
+  .support p { color:#CFC8BC; max-width:40ch; font-size:.95rem; }
+  .support-actions { display:flex; flex-direction:column; gap:13px; align-items:flex-start; }
+  .support .big-btn { display:inline-block; padding:12px 20px; border:1px solid #D9A441; background:#D9A441; color:var(--ink); text-decoration:none; font-weight:700; }
+  .support .big-btn:hover { background:#F0C166; }
+  .support .big-btn:focus-visible { outline:2px solid #F8F4EC; outline-offset:4px; }
+  .support-actions span { color:#B7AFA2; font-size:.8rem; line-height:1.6; }
+  .budget-controls { display:grid; grid-template-columns:minmax(120px,.65fr) minmax(160px,1fr) auto; align-items:end; gap:14px; border-bottom:1px solid var(--line); padding:0 0 22px; }
+  .budget-controls label { display:block; font-size:.78rem; color:var(--muted); letter-spacing:.04em; margin-bottom:6px; }
+  .result-meta { grid-column:1/-1; padding:5px 0 10px; color:var(--muted); font-size:.84rem; letter-spacing:.04em; }
+  .budget-controls input,.budget-controls select { display:block; width:100%; min-height:44px; border:1px solid var(--line); border-radius:2px; padding:10px 12px; color:var(--ink); background:var(--card); font:inherit; }
+  .budget-controls input:focus,.budget-controls select:focus { border-color:var(--p); outline:2px solid color-mix(in srgb,var(--p) 22%,transparent); outline-offset:2px; }
+@media (max-width:640px) { .snapshot-strip { display:block; line-height:1.6; } .snapshot-strip b { display:block; margin-bottom:3px; } .support { grid-template-columns:1fr; margin:64px -16px 0; padding:32px 25px; } .budget-controls { grid-template-columns:1fr 1fr; } .budget-controls .btn { grid-column:1/-1; width:100%; } .wrap { padding:0 16px 60px; } .hero { margin:0 -16px; padding:50px 25px; } .hero h1 { font-size:clamp(2.7rem,12vw,4rem); } .nav { flex-wrap:nowrap; overflow-x:auto; white-space:nowrap; } .nav a { flex:0 0 auto; } .sec { margin-top:56px; } .rank-item { gap:8px; padding:14px 0; } .rank-item .rn { min-width:0; } .rank-item .rs { font-size:.82rem; } .bar-a,.bar-b { font-size:.65rem; padding-left:4px; white-space:nowrap; overflow:hidden; } }
+@media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms!important; transition-duration:.01ms!important; scroll-behavior:auto!important; } }
 </style>
 </head>
 <body>
 <div class="wrap">
 
   <div class="hero">
-    <span class="badge">麦当劳 MCP · 创意开发大赛参赛作品</span>
-    <h1>麦门比价王</h1>
-    <div class="sub">两个套餐纠结半天？把价格、热量、蛋白摆在一起，3 秒见分晓。<br>数据来自麦当劳官方 MCP 接口，算术交给代码，数字可复现。</div>
+    <div class="hero-copy"><span class="badge">MCD / DECISION JOURNAL · 01</span>
+    <h1>这一顿，<br>选哪套？</h1>
+    <div class="sub">麦门比价王把套餐拆开，把差异摊平。价格、营养、组成——先看清楚，再决定这一顿怎么吃。</div></div>
     <div class="demo">
-      <span class="num">拆开单点 ¥62.50</span><span class="vs">VS</span>
-      <span class="num">套餐价 ¥32.00</span>
-      <span class="save">真实省 ¥30.5 · 49%</span>
-      <span class="tag">巨无霸四件套 · 官方 MCP 数据实测</span>
-      <a class="star-btn" href="https://github.com/Philip-Xu-yu/mcd-price-king" target="_blank"><span class="s">⭐</span> 觉得好用？点个 Star</a>
+      <span class="num">所列单品合计 ¥62.50</span><span class="vs">VS</span>
+      <span class="num">快照套餐价 ¥32.00</span>
+      <span class="save">拆单估算差额 · ¥30.50</span>
+      <span class="tag">巨无霸四件套 · 历史菜单快照示例</span>
+      <a class="star-btn" href="#budget">从预算开始 →</a>
     </div>
   </div>
 
   <div class="nav">
-    <a href="#features">⚡ 它能做什么</a>
-    <a href="#coupon">💎 一键领券</a>
-    <a href="#rank">🏆 最划算</a>
-    <a href="#try">⚖️ 在线试算</a>
-    <a href="#how">🔍 原理</a>
-    <a href="#truth">✅ 真实性</a>
-    <a href="#faq">❓ FAQ</a>
+    <a href="#budget">01 预算筛选</a>
+    <a href="#try">02 套餐比价</a>
+    <a href="#rank">03 拆单差额</a>
+    <a href="#how">怎么算出来</a>
+    <a href="#truth">数据来源</a>
+    <a href="#faq">常见问题</a>
   </div>
 
-  <div class="sec" id="features"><h2>⚡ 它能做什么</h2><span class="hint">四大能力，全部基于官方实时数据</span></div>
-  <div class="feat-grid">
-    <div class="feat"><div class="ic">⚖️</div><div class="nm">套餐比价</div><div class="ds">两个套餐并排对比，价格、热量、蛋白一目了然</div></div>
-    <div class="feat"><div class="ic">🧮</div><div class="nm">真实节省</div><div class="ds">拆开单点算总价，划线价之外的真实优惠</div></div>
-    <div class="feat"><div class="ic">🍟</div><div class="nm">麦当劳度量衡</div><div class="ds">省下的钱 = 几份麦乐鸡，一眼有感觉</div></div>
-    <div class="feat"><div class="ic">💎</div><div class="nm">券和积分</div><div class="ds">官方算价、积分怎么花、一键领券（完整应用）</div></div>
-  </div>
-
-  <div class="sec" id="coupon"><h2>💎 一键领券</h2><span class="hint">券会过期，忘了领就是亏</span></div>
-  <div class="card" style="text-align:center">
-    <div class="txt" style="font-size:.95rem;color:#4A443C;margin-bottom:6px">麦当劳经常有可领的券，<b>一张张去点太麻烦</b>。</div>
-    <div class="txt" style="font-size:.95rem;color:#4A443C;margin-bottom:16px">这里一键帮你把能领的<b>全领了</b>。</div>
-    <button class="btn" style="font-size:1.1rem;padding:15px 40px" onclick="claimAll()">🎟️ 一键领取所有可领的券</button>
-    <div id="claimResult" style="margin-top:14px"></div>
-    <div class="note" style="margin-top:12px">本页为演示效果（示例数据）。完整应用接入你的 MCP Token 后真实领取，实测自动领到过「免费脆薯饼」。</div>
-  </div>
-
-  <div class="sec" id="rank"><h2>🏆 今日最划算 TOP5</h2><span class="hint">真实节省 = 拆开单点合计 - 套餐价 · 按官方数据快照排序</span></div>
+  <div class="sec" id="budget"><h2>01 / 从预算开始</h2><span class="hint">不需要 Token。先从快照菜单中找出三款候选。</span></div>
+  <div class="snapshot-strip"><b>数据快照</b><span>来源：历史 MCP 请求缓存与示例整理 · 逐条采集时间、门店和商品组成尚待复核 · 非实时菜单</span></div>
   <div class="card">
-    <div class="rank-list" id="rankList"></div>
+    <div class="budget-controls">
+      <div><label for="budgetInput">单份预算（元）</label>
+        <input id="budgetInput" type="number" min="1" max="500" step="1" value="35">
+      </div>
+      <div><label for="budgetMode">优先看什么</label>
+        <select id="budgetMode">
+          <option value="price">价格最低</option>
+          <option value="save">拆单差额最大</option>
+          <option value="protein">蛋白质更多</option>
+          <option value="kcal">热量更低</option>
+        </select>
+      </div>
+      <button class="btn" onclick="recommendBudget()">找预算内套餐</button>
+    </div>
+    <div id="budgetResult" class="meal-grid" style="margin-top:16px"></div>
+    <div class="note">仅按历史快照的单份套餐展示价筛选；排序只影响候选顺序，不叠券，不代表当前门店的整单应付。</div>
   </div>
 
-  <div class="sec" id="try"><h2>① 点选两个套餐，开始比价</h2><span class="hint">点击卡片放入 A / B 槽</span></div>
+  <div class="sec" id="try"><h2>02 / 两款并排，比个清楚</h2><span class="hint">点击套餐，依次放入 A / B 槽。免 Token，不会下单。</span></div>
   <div class="card">
     <div class="slots">
-      <div class="slot">A 位：<b id="slotA">未选择</b></div>
-      <div class="slot">B 位：<b id="slotB">未选择</b></div>
+      <div class="slot"><span class="slot-label">A 位</span><b id="slotA">未选择</b></div>
+      <div class="slot"><span class="slot-label">B 位</span><b id="slotB">未选择</b></div>
     </div>
     <div class="meal-grid" id="meals"></div>
     <div class="btn-row">
-      <button class="btn" onclick="compare()">开始比价 ⚖️</button>
+      <button class="btn" id="compareBtn" onclick="compare()">开始比价</button>
       <button class="btn ghost" onclick="reset()">重新选择</button>
     </div>
     <div id="result"></div>
   </div>
 
-  <div class="sec" id="how"><h2>🔍 为什么不让大模型算价格</h2></div>
+  <div class="sec" id="rank"><h2>03 / 可核对的拆单差额</h2><span class="hint">只列入当前单品清单能核对的条目；不是实时优惠或券后成交价。</span></div>
+  <div class="card"><div class="rank-list" id="rankList"></div></div>
+
+  <div class="sec secondary" id="how"><h2>价格，怎么算出来</h2><span class="hint">本页展示历史快照；连接 MCP 的完整应用可查询当前门店。</span></div>
   <div class="card">
-    <div class="step"><div class="no">1</div><div><b>取数交给 MCP</b><div class="tx">通过麦当劳官方 MCP 拉取真实菜单、价格、套餐组成、营养数据。</div></div></div>
-    <div class="step"><div class="no">2</div><div><b>算术交给代码</b><div class="tx">拆开套餐算真实节省（单点合计 - 套餐价）、营养求和、差价换算，全部确定性计算。</div></div></div>
+    <div class="step"><div class="no">1</div><div><b>取数交给 MCP</b><div class="tx">完整应用连接个人 Token 后，通过麦当劳 MCP 查询当前门店；本页只展示历史快照。</div></div></div>
+    <div class="step"><div class="no">2</div><div><b>算术交给代码</b><div class="tx">按已知组成估算拆单差额（单点合计 - 套餐价），并计算营养差异；仅作为快照比较。</div></div></div>
     <div class="step"><div class="no">3</div><div><b>表达交给人话</b><div class="tx">结论只有一句："A 更省钱，B 蛋白更多，看你要什么"。省下的钱换算成麦当劳商品。</div></div></div>
-    <div class="alert-note">大模型口算价格不可靠，容易出现"看着便宜、到店付不出"的假结果。本项目所有金额由确定性算法或 MCP 官方算价接口计算。</div>
+    <div class="alert-note">本页的价格和节省金额基于历史快照与确定性计算，仅用于比较思路；实际售价、库存、券后应付请以当前门店的官方渠道为准。</div>
   </div>
 
-  <div class="sec" id="truth"><h2>✅ 真实性对照表</h2></div>
+  <div class="sec secondary" id="truth"><h2>数据与边界</h2></div>
   <div class="card">
     <table>
       <thead><tr><th>数据</th><th>来源</th><th>状态</th></tr></thead>
@@ -257,14 +377,15 @@ th { color:var(--muted); font-weight:600; font-size:.8rem; }
     </table>
   </div>
 
-  <div class="sec" id="faq"><h2>❓ 常见问题</h2></div>
+  <div class="sec secondary" id="faq"><h2>常见问题</h2></div>
   <div class="faq"><input type="radio" name="faq" id="f1" checked><label class="q" for="f1">这和大模型直接回答有什么区别？</label><div class="a">大模型口算价格、折扣、营养并不可靠。本项目金额全部来自确定性计算或 MCP 官方接口，可复现、可核验。</div></div>
   <div class="faq"><input type="radio" name="faq" id="f2"><label class="q" for="f2">需要麦当劳账号吗？</label><div class="a">本页试算用内置数据快照，不需要登录。查看自己的券/积分/领券需要自己的 MCP Token（完整应用支持）。</div></div>
-  <div class="faq"><input type="radio" name="faq" id="f3"><label class="q" for="f3">能真的下单吗？</label><div class="a">完整应用用 MCP 官方算价接口核价；下单请以麦当劳 App 为准。</div></div>
-  <div class="faq"><input type="radio" name="faq" id="f4"><label class="q" for="f4">营养数字可信吗？</label><div class="a">营养来自麦当劳官方营养数据表；套餐营养为组成项求和，个别组成项无数据时按 0 计并已标注。</div></div>
+  <div class="faq"><input type="radio" name="faq" id="f3"><label class="q" for="f3">能真的下单吗？</label><div class="a">本页不会下单。完整应用有默认关闭的高级下单功能，需选择门店、加载实时菜单并明确确认；订单与支付状态以官方接口为准。</div></div>
+  <div class="faq"><input type="radio" name="faq" id="f4"><label class="q" for="f4">营养数字可信吗？</label><div class="a">营养来自历史快照中的麦当劳官方营养数据表；套餐营养是已匹配组成项的求和。没有匹配到的数据不会被当作真实营养值，结果仅供快照比较。</div></div>
 
-  <div class="star-call">
-    <a class="big-btn" href="https://github.com/Philip-Xu-yu/mcd-price-king" target="_blank">⭐ 给项目一个 Star，让更多人看到</a>
+  <div class="support" id="support">
+    <div class="support-copy"><span class="eyebrow">SUPPORT THE PROJECT</span><h2>如果这页帮你少纠结一次</h2><p>在 GitHub 点一下 Star，方便你回来，也让参赛项目留下可见的使用反馈。</p></div>
+    <div class="support-actions"><a class="big-btn" href="https://github.com/Philip-Xu-yu/mcd-price-king" target="_blank" rel="noopener noreferrer">打开 GitHub 项目 ↗</a><span>需要先登录 GitHub；打开后在项目右上角手动点 Star。本页不会代你操作账号。</span></div>
   </div>
 
   <div class="foot">
@@ -274,6 +395,7 @@ th { color:var(--muted); font-weight:600; font-size:.8rem; }
 </div>
 
 <script>
+const SNAPSHOT_META = { source: '历史 MCP 请求缓存与示例整理', captured: '逐条采集时间待复核', scope: '示例快照，非实时门店菜单' };
 const DATA = [
   {"name":"全明星双人分享餐八件套","price":49.9,"original":114.5,"save":48.1,"kcal":1482,"protein":61,"sodium":2751,"image":"https://menu-img.mcd.cn/pcm/prod/menu/20261008/product/MS_9900011056_600.png","items":[{"name":"麦辣鸡腿堡","price":25.5},{"name":"中薯条","price":13.5},{"name":"麦乐鸡4块","price":14},{"name":"可乐中杯","price":9.5}]},
   {"name":"巨无霸四件套","price":32.0,"original":58.5,"save":30.5,"kcal":1119,"protein":41,"sodium":1463,"image":"https://menu-img.mcd.cn/pcm/prod/menu/20260824/product/MS_9900000888_600.png","items":[{"name":"巨无霸","price":25.5},{"name":"中薯条","price":13.5},{"name":"麦乐鸡4块","price":14},{"name":"可乐中杯","price":9.5}]},
@@ -287,6 +409,11 @@ const DATA = [
   {"name":"\"苹\"水相\"鱼\"套餐","price":36.0,"original":54.0,"save":18.0,"kcal":1210,"protein":41,"sodium":1600,"image":"https://menu-img.mcd.cn/pcm/prod/menu/20260824/product/MS_521903_320.png","items":[{"name":"麦香鱼","price":22.5},{"name":"中薯条","price":13.5},{"name":"可乐中杯","price":9.5}]},
   {"name":"BFF四宫格小食盘双人餐","price":62.9,"original":99.0,"save":36.1,"kcal":1750,"protein":52,"sodium":2300,"image":"https://menu-img.mcd.cn/pcm/prod/menu/20260824/product/MS_521904_320.png","items":[{"name":"小食拼盘","price":39.0},{"name":"大薯条","price":15.0},{"name":"麦乐鸡4块","price":14},{"name":"可乐中杯","price":9.5}]}
 ];
+// 只有所列单品合计与快照差额一致时才展示拆单差额；其余条目保留套餐展示价，不宣称节省金额。
+DATA.forEach(x => {
+  const listed = Math.round(x.items.reduce((sum, item) => sum + item.price, 0) * 10) / 10;
+  if (Math.abs((listed - x.price) - x.save) > 0.11) x.save = null;
+});
 const METRIC = [
   { name: '麦乐鸡(5块)', price: 14, protein: 12 },
   { name: '小薯条', price: 13.5, protein: 3 },
@@ -301,11 +428,14 @@ function renderMeals() {
   mealsEl.innerHTML = '';
   const list = showAll ? DATA : DATA.slice(0, VISIBLE);
   list.forEach((d, i) => {
-    const div = document.createElement('div');
+    const div = document.createElement('button');
+    div.type = 'button';
     div.className = 'meal' + (selA === i ? ' sel-a' : '') + (selB === i ? ' sel-b' : '');
-    div.innerHTML = `<img src="${d.image}" onerror="this.style.display='none'" alt="">` +
-      `<div class="nm">${d.name}</div><div class="pr">¥${d.price}</div>` +
-      `<div class="st">划线价 ¥${d.original}</div>`;
+    div.setAttribute('aria-pressed', selA === i || selB === i ? 'true' : 'false');
+    div.setAttribute('aria-label', `${d.name}，套餐价 ¥${d.price}${selA === i ? '，已选 A' : selB === i ? '，已选 B' : ''}`);
+    div.innerHTML = `<img src="${textPlain(d.image)}" onerror="this.style.display='none'" alt="">` +
+      `<div class="nm">${textPlain(d.name)}</div><div class="pr">¥${d.price}</div>` +
+      `<div class="st">菜单划线价 ¥${d.original}</div>`;
     div.onclick = () => pick(i);
     mealsEl.appendChild(div);
   });
@@ -315,8 +445,11 @@ function renderMeals() {
     more.innerHTML = `<button class="btn ghost" onclick="showAll=true;renderMeals()">展开全部 ${DATA.length} 个套餐 ▾</button>`;
     mealsEl.appendChild(more);
   }
-  document.getElementById('slotA').textContent = selA === null ? '未选择（点击套餐卡片）' : DATA[selA].name;
-  document.getElementById('slotB').textContent = selB === null ? '未选择（点击套餐卡片）' : DATA[selB].name;
+  document.getElementById('slotA').textContent = selA === null ? '未选择' : DATA[selA].name;
+  document.getElementById('slotB').textContent = selB === null ? '未选择' : DATA[selB].name;
+  const compareBtn = document.getElementById('compareBtn');
+  compareBtn.disabled = selA === null || selB === null;
+  compareBtn.textContent = compareBtn.disabled ? '先选两款套餐' : '开始比价';
 }
 
 function pick(i) {
@@ -326,10 +459,34 @@ function pick(i) {
   else if (selB === i) selB = null;
   else { selA = i; selB = null; }
   document.getElementById('result').innerHTML = '';
+  lastResult = null;
   renderMeals();
 }
 
-function reset() { selA = selB = null; document.getElementById('result').innerHTML = ''; renderMeals(); }
+function reset() { selA = selB = null; lastResult = null; document.getElementById('result').innerHTML = ''; renderMeals(); }
+
+function recommendBudget() {
+  const input = Number(document.getElementById('budgetInput').value);
+  const result = document.getElementById('budgetResult');
+  if (!Number.isFinite(input) || input <= 0 || input > 500) { result.textContent = '请输入 1–500 元之间的单份预算。'; return; }
+  const mode = document.getElementById('budgetMode').value;
+  const modeLabel = {price:'价格最低', save:'拆单差额最大', protein:'蛋白质更多', kcal:'热量更低'}[mode];
+  const items = DATA.filter(x => x.price <= input && (mode !== 'save' || x.save !== null)).sort((a,b) => {
+    if (mode === 'save') return ((b.save ?? -1)-(a.save ?? -1)) || (a.price-b.price);
+    if (mode === 'protein') return (b.protein-a.protein) || (a.price-b.price);
+    if (mode === 'kcal') return (a.kcal-b.kcal) || (a.price-b.price);
+    return (a.price-b.price) || ((b.save ?? -1)-(a.save ?? -1));
+  }).slice(0, 3);
+  if (!items.length) { result.textContent = '当前预算内没有找到套餐，请提高预算。'; return; }
+  result.setAttribute('aria-live', 'polite');
+  result.innerHTML = `<div class="result-meta">预算 ¥${input} · 当前排序：${modeLabel}</div>` + items.map(x => `<button type="button" class="meal" onclick="budgetPick(${DATA.indexOf(x)})" aria-label="选择${textPlain(x.name)}进行比较"><img src="${textPlain(x.image)}" alt=""><div class="nm">${textPlain(x.name)}</div><div class="pr">¥${x.price}</div><div class="st">${x.save === null ? '差额待核实' : '拆单估算差额 ¥' + x.save}</div></button>`).join('');
+}
+
+function budgetPick(i) {
+  if (selA !== null && selB !== null) { selA = null; selB = null; }
+  pick(i);
+  document.getElementById('try').scrollIntoView({behavior:'smooth'});
+}
 
 function metricText(saving) {
   if (saving < 1) return '不到一份「香芋派」';
@@ -339,6 +496,10 @@ function metricText(saving) {
     if (n >= 1) { const val = n * m.price; if (!best || val > best.val) best = { n, name: m.name, val }; }
   }
   return best ? `≈ <b>${best.n}</b> 份「${best.name}」` : '不到一份「香芋派」';
+}
+
+function textPlain(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 }
 
 function metricPlain(saving) {
@@ -352,12 +513,12 @@ function metricPlain(saving) {
 }
 
 function compare() {
-  if (selA === null || selB === null) { alert('先在卡片上选两个套餐（A 和 B）'); return; }
+  if (selA === null || selB === null) { alert('请先选择两款套餐，再开始比价。'); return; }
   const a = DATA[selA], b = DATA[selB];
   const diff = Math.round((a.price - b.price) * 10) / 10;
   const saving = Math.abs(diff);
-  const cheaper = diff >= 0 ? 'a' : 'b';
-  const reasons = [`${cheaper === 'a' ? 'A' : 'B'} 更省钱（省 ¥${saving}）`];
+  const cheaper = diff < 0 ? 'a' : (diff > 0 ? 'b' : 'tie');
+  const reasons = [cheaper === 'tie' ? '两款价格相同' : `${cheaper === 'a' ? 'A' : 'B'} 展示价更低（差 ¥${saving}）`];
   if (a.protein !== b.protein) {
     const w = a.protein > b.protein ? 'A' : 'B';
     reasons.push(`${w} 蛋白更多（${Math.max(a.protein,b.protein)}g vs ${Math.min(a.protein,b.protein)}g）`);
@@ -366,19 +527,19 @@ function compare() {
     const w = a.kcal < b.kcal ? 'A' : 'B';
     reasons.push(`${w} 热量更低（${Math.min(a.kcal,b.kcal)} vs ${Math.max(a.kcal,b.kcal)} kcal）`);
   }
-  const verdict = reasons.length === 1 ? `选 ${reasons[0][0]} —— ${reasons[0]}` : '看你要什么：' + reasons.join('；');
+  const verdict = reasons.length === 1 ? (cheaper === 'tie' ? reasons[0] : `选 ${reasons[0][0]} —— ${reasons[0]}`) : '看你要什么：' + reasons.join('；');
   const pN = Math.round(Math.abs(a.protein - b.protein) / METRIC[0].protein * 10) / 10;
   const maxKcal = Math.max(a.kcal, b.kcal, 1);
   const maxPro = Math.max(a.protein, b.protein, 1);
   const maxPrice = Math.max(a.price, b.price, 1);
   const card = (x, win) => `
     <div class="rcard ${win ? 'win' : ''}">
-      ${win ? '<div class="crown">🏆 更划算</div>' : ''}
-      <img src="${x.image}" onerror="this.style.display='none'" alt="">
-      <div class="nm">${x.name}</div>
+      ${win ? '<div class="crown">展示价更低</div>' : ''}
+      <img src="${textPlain(x.image)}" onerror="this.style.display='none'" alt="">
+      <div class="nm">${textPlain(x.name)}</div>
       <div class="price">¥${x.price}</div>
       <div class="strike">划线价 ¥${x.original}</div>
-      <div class="m">真实省 <b>¥${x.save}</b></div>
+      <div class="m">${x.save === null ? '拆单差额：待核实' : '拆单估算差额 <b>¥' + x.save + '</b>'}</div>
       <div class="m">热量 <b>${x.kcal} kcal</b> · 蛋白 <b>${x.protein} g</b></div>
     </div>`;
   const bars = `
@@ -392,30 +553,31 @@ function compare() {
     </div>`;
   lastResult = {
     a: a, b: b, verdict: verdict,
-    metric: '省下的 ¥' + saving + ' ' + metricPlain(saving) + (pN >= 0.1 ? '；蛋白差 ≈ ' + pN + ' 份麦乐鸡(5块)' : '')
+    metric: '差价 ¥' + saving + ' ' + metricPlain(saving) + (pN >= 0.1 ? '；蛋白差 ≈ ' + pN + ' 份麦乐鸡(5块)' : '')
   };
   document.getElementById('result').innerHTML = `
     <div class="cards">${card(a, cheaper === 'a')}${card(b, cheaper === 'b')}</div>${bars}
-    <div class="verdict"><div class="t">⚖️ 结论</div>
+    <div class="verdict"><div class="t">比较结论</div>
     <div class="big">${verdict}</div>
-    <div class="note">💡 省下的 ¥${saving} ${metricText(saving)}${pN >= 0.1 ? `；蛋白差 ≈ ${pN} 份麦乐鸡(5块)` : ''}</div></div>
-    <div class="btn-row" style="margin-top:14px"><button class="btn" onclick="genShare()">📤 生成分享卡片</button></div>`;
+    <div class="note">差价 ¥${saving} ${metricText(saving)}${pN >= 0.1 ? `；蛋白差 ≈ ${pN} 份麦乐鸡(5块)` : ''}</div>
+    <div class="note">仅比较快照展示价，不是券后成交价。</div></div>
+    <div class="btn-row" style="margin-top:14px"><button class="btn ghost" onclick="genShare()">保存这次比较</button></div>`;
 }
 
-// 排行榜渲染（按真实节省排序 TOP5）
+// 仅展示所列单品价格能核对的拆单差额。
 function renderRank() {
   const el = document.getElementById('rankList');
-  const sorted = [...DATA].sort((x, y) => y.save - x.save).slice(0, 5);
-  el.innerHTML = sorted.map((d, i) => {
+  const sorted = DATA.filter(x => x.save !== null).sort((x, y) => y.save - x.save).slice(0, 5);
+  el.innerHTML = `<div class="result-meta">仅展示 ${sorted.length} 款拆单差额可核对的套餐；其他快照条目尚待核实。</div>` + sorted.map((d, i) => {
     const cls = i === 0 ? 'rk-1' : i === 1 ? 'rk-2' : i === 2 ? 'rk-3' : 'rk-n';
     const idx = DATA.indexOf(d);
-    return `<div class="rank-item" onclick="rankPick(${idx})">
+    return `<button type="button" class="rank-item" onclick="rankPick(${idx})" aria-label="选择${textPlain(d.name)}进行比较">
       <div class="rk ${cls}">${i + 1}</div>
-      <img src="${d.image}" onerror="this.style.display='none'" alt="">
-      <div class="rn">${d.name}</div>
-      <div class="rs">省 ¥${d.save}</div>
+      <img src="${textPlain(d.image)}" onerror="this.style.display='none'" alt="">
+      <div class="rn">${textPlain(d.name)}</div>
+      <div class="rs">拆单估算 ¥${d.save}</div>
       <div class="rp">¥${d.price}</div>
-    </div>`;
+    </button>`;
   }).join('');
 }
 
@@ -425,21 +587,6 @@ function rankPick(i) {
   document.getElementById('result').innerHTML = '';
   renderMeals();
   window.scrollTo({ top: document.getElementById('try').offsetTop - 80, behavior: 'smooth' });
-}
-
-// 模拟一键领券（示例数据）
-const CLAIM_POOL = ['免费脆薯饼', '第二杯半价券', '满30减5券'];
-function claimAll() {
-  const el = document.getElementById('claimResult');
-  el.innerHTML = '<div style="color:#8A8378;font-size:.9rem">正在领取...</div>';
-  setTimeout(() => {
-    const got = CLAIM_POOL.slice(0, 1 + Math.floor(Math.random() * CLAIM_POOL.length));
-    el.innerHTML = `
-      <div style="background:#E8F5E9;border-left:4px solid #2E9E5B;border-radius:10px;padding:12px 16px;text-align:left">
-        <div style="font-weight:800;color:#2E7D32">🎉 领取成功！</div>
-        <div style="font-size:.9rem;margin-top:4px">已领取：${got.map(g => '「' + g + '」').join('、')} —— 已放入你的麦当劳账户</div>
-      </div>`;
-  }, 900);
 }
 
 // ===== 分享卡片（Canvas 手绘，零网络依赖） =====
@@ -485,10 +632,10 @@ function drawSideBlock(ctx, F, label, x, y) {
   ctx.fillStyle = '#fff';
   ctx.fillText(x.name, 150, y + 22);
 
-  // 真实省
+  // 拆单差额
   ctx.font = '700 22px ' + F;
   ctx.fillStyle = '#7EDB9B';
-  ctx.fillText('真实省 ¥' + x.save, 150, y + 56);
+  ctx.fillText(x.save === null ? '拆单差额待核实' : '拆单估算差额 ¥' + x.save, 150, y + 56);
 
   // 价格
   ctx.textAlign = 'right';
@@ -542,7 +689,7 @@ function drawShareCard() {
   ctx.fillStyle = '#fff';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText('🍔', 0, 0);
+  ctx.fillText('M', 0, 0);
   ctx.restore();
   ctx.globalAlpha = 1;
 
@@ -571,7 +718,7 @@ function drawShareCard() {
   // 副标题
   ctx.font = '26px ' + F;
   ctx.fillStyle = 'rgba(255,255,255,0.6)';
-  ctx.fillText('两个套餐，谁更划算？', CW/2, 226);
+  ctx.fillText('两个套餐，展示价与营养怎么选？', CW/2, 226);
 
   // 分隔线
   ctx.strokeStyle = 'rgba(255,255,255,0.12)';
@@ -622,7 +769,7 @@ function drawShareCard() {
   ctx.setLineDash([]);
   ctx.font = '800 28px ' + F;
   ctx.fillStyle = '#FFD98A';
-  ctx.fillText('⚖️ 结论', 110, vy + 44);
+  ctx.fillText('比较结论', 110, vy + 44);
   ctx.font = '700 30px ' + F;
   ctx.fillStyle = '#fff';
   const vlines = wrapText(ctx, lastResult.verdict, bw2 - 60);
@@ -631,7 +778,7 @@ function drawShareCard() {
   });
   ctx.font = '22px ' + F;
   ctx.fillStyle = '#FFD98A';
-  const mlines = wrapText(ctx, '💡 ' + lastResult.metric, bw2 - 60);
+  const mlines = wrapText(ctx, lastResult.metric, bw2 - 60);
   mlines.slice(0, 2).forEach(function(ln, i) {
     ctx.fillText(ln, 110, vy + 176 + i * 30);
   });
@@ -676,7 +823,7 @@ if (location.hash === '#try') {
 <div class="modal-overlay" id="shareModal" onclick="if(event.target===this)closeShare()">
   <div class="modal-box">
     <button class="m-close" onclick="closeShare()">✕</button>
-    <div class="m-title">📤 分享这张比价卡片</div>
+    <div class="m-title">保存比价卡片</div>
     <img id="shareImg" alt="麦门比价王比价卡片">
     <div class="m-btns">
       <a class="btn" id="shareDl" download="mcd-compare.png">下载图片</a>
